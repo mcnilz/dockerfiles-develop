@@ -67,3 +67,5 @@ RUN	docker-php-ext-install \
 		pdo_mysql \
 		pgsql \
 		pdo_pgsql
+
+COPY apache2-foreground /usr/local/bin/
