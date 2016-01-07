@@ -1,8 +1,10 @@
 FROM	php:apache
 
-ENV	WEB_ROOT /var/www/html
-ENV	MONGO_VERSION 1.6.11
-ENV	XHPROF_VERSION 0.9.4
+MAINTAINER Martin Schnabel <mcnilz@gmail.com>
+
+ENV	WEB_ROOT		/var/www/html
+ENV	MONGO_VERSION		1.6.12
+ENV	XHPROF_VERSION		0.9.4
 
 RUN	\
 	   sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
