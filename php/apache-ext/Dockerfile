@@ -1,4 +1,4 @@
-FROM	php:apache
+FROM	php:5.6-apache
 
 MAINTAINER Martin Schnabel <mcnilz@gmail.com>
 
