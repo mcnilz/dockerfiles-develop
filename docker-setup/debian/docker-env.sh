@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 if [ "$#" -gt 0 ]; then
   HOST="$1"
 else
