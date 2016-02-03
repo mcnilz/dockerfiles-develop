@@ -15,6 +15,8 @@ COPY	entrypoint.sh /
 
 RUN	mkdir /root/.duply
 
+VOLUME	/root/.duply
+
 WORKDIR /root/.duply
 
 ENTRYPOINT ["/entrypoint.sh"]

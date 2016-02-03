@@ -20,4 +20,8 @@ if [ -z "$CMD" ]; then
 	exit 1
 fi
 
-docker run -h duply -v "${WORKDIR}":/root/.duply -v "${MOUNT}":/mnt --rm -ti duply $CMD $PARAM
+
+TIME=`date +%s`
+
+docker run -h duply -v "${WORKDIR}":/root/.duply -v "${MOUNT}":/mnt -ti --name="duply-run-$TIME" duply $CMD $PARAM
+docker rm "duply-run-$TIME"

@@ -61,5 +61,8 @@ case $key in
 		echo " duply-run [project-id]      do backup"
 		echo " duply [project-id] ...      run any duply command"
 		echo " cmd ...                     run any shell command"
+		echo ""
+		echo "You should mount project volume to /root/.duply and backup volume to /mnt"
+		echo ""
 	;;
 esac
