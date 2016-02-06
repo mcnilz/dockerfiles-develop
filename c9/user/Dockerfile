@@ -5,11 +5,6 @@ FROM	mcnilz/c9
 
 MAINTAINER Martin Schnabel <mcnilz@gmail.com>
 
-RUN	apt-get update \
-	&& apt-get install -y sudo \
-	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/*
-
 ARG	USER_ID=1000
 ARG	USER_NAME=john
 RUN	useradd -m ${USER_NAME} -u ${USER_ID} -g sudo

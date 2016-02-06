@@ -1,8 +1,16 @@
 #!/bin/bash
 
+if [ -z "$1" ]
+  then
+    echo "a name is required"
+    exit
+fi
+
 docker run --rm \
  -v "${PWD}:/workspace" \
  -e "VIRTUAL_HOST=${1}" \
  -e "VIRTUAL_PORT=8080" \
+ -l "traefik.port=8080" \
+ -v "$SSH_AUTH_SOCK:/tmp/ssh_auth_sock" -e "SSH_AUTH_SOCK=/tmp/ssh_auth_sock" \
  --name "c9-host-${1}" \
  c9-user-${USER}

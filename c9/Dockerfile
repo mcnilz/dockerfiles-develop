@@ -12,6 +12,7 @@ RUN	apt-get update \
 		git \
 		libxml2-dev \
 		sshfs \
+		sudo \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
 
@@ -22,12 +23,11 @@ RUN	scripts/install-sdk.sh
 RUN	sed -i -e 's_127.0.0.1_0.0.0.0_g' /cloud9/configs/standalone.js 
 
 RUN	curl -sSL https://get.docker.com/ | sh \
-	&& apt-get install -y python-pip python-dev \
-	&& pip install docker-compose \
-	&& curl -L https://github.com/docker/machine/releases/download/v0.5.3/docker-machine_linux-amd64 >/usr/local/bin/docker-machine \
-	&& chmod +x /usr/local/bin/docker-machine \
-        && apt-get clean \
-        && rm -rf /var/lib/apt/lists/*
+	&& curl -L https://github.com/docker/compose/releases/download/1.6.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose \
+	&& curl -L https://github.com/docker/machine/releases/download/v0.6.0/docker-machine-`uname -s`-`uname -m` > /usr/local/bin/docker-machine \
+	&& chmod +x /usr/local/bin/docker-machine /usr/local/bin/docker-compose \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/*
 
 RUN	mkdir /workspace
 VOLUME	/workspace
