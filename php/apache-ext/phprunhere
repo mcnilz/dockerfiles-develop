@@ -7,6 +7,7 @@ if [ -z "$1" ]
 fi
 
 docker run --rm \
+ -w "${PWD}" \
  -v "${PWD}/:${PWD}" \
  -e "VIRTUAL_HOST=${1}" \
  -e "VIRTUAL_PORT=80" \
