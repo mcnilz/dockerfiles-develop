@@ -1,0 +1,53 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+	echo "missing arguments"
+	echo "dwc calls docker with the container that mounts the current working directory."
+	echo "All single underscores will be replaced by the container ID."
+	echo "If no underscore is found the container ID will be added as last argument."
+	echo "Examples:"
+	echo "dwc inspect"
+	echo "dwc exec -ti _ /bin/bash"
+	exit -1
+fi
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+	DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+	SOURCE="$(readlink "$SOURCE")"
+	[[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+ID=`$SCRIPT_DIR/pwc`
+
+if [ -z "$ID" ]; then
+	echo "no container found"
+	exit -1
+fi
+
+if [ `echo $ID | wc -l` \> 1 ]; then
+	echo "more then one container found:"
+	echo $ID
+	exit -1
+fi
+
+# docker inspect $ID
+
+NEWARGS=()
+HAS_UNDERSCORE=0
+for ARG in "$@"
+do
+	if [ "$ARG" == "_" ]; then
+		NEWARGS+=("$ID")
+		HAS_UNDERSCORE=1
+	else
+		NEWARGS+=("$ARG")
+	fi
+done
+
+if [ $HAS_UNDERSCORE -eq 0 ]; then
+	NEWARGS+=("$ID")
+fi
+
+exec docker ${NEWARGS[@]}
