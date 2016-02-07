@@ -19,7 +19,7 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-ID=`$SCRIPT_DIR/pwc`
+ID=`$SCRIPT_DIR/pwc -a`
 
 if [ -z "$ID" ]; then
 	echo "no container found"

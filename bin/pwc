@@ -2,7 +2,12 @@
 
 # find container that mounts the current working directory
 
-MOUNTS=`for ID in $( docker ps -q );
+PS_PARAM=""
+if [ "$1" == "-a" ]; then
+	PS_PARAM="-a"
+fi
+
+MOUNTS=`for ID in $( docker ps -q $PS_PARAM );
 do
 	docker inspect --format='{{$c := .Id }}{{range $mount := .Mounts}}{{$c}}{{"\t"}}{{$mount.Source}}{{"\n"}}{{end}}' $ID;
 done`

@@ -6,7 +6,7 @@ if [ -z "$1" ]
     exit
 fi
 
-docker run --rm \
+docker run ${@:2} \
  -w "${PWD}" \
  -v "${PWD}/:${PWD}" \
  -e "VIRTUAL_HOST=${1}" \
