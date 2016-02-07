@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# find container that mounts the current working directory
+
+MOUNTS=`for ID in $( docker ps -q );
+do
+	docker inspect --format='{{$c := .Id }}{{range $mount := .Mounts}}{{$c}}{{"\t"}}{{$mount.Source}}{{"\n"}}{{end}}' $ID;
+done`
+
+IFS=$'\n'
+
+for MOUNT in $MOUNTS
+do
+	DIR=`echo $MOUNT | awk '{print $2}'`
+	if [[ "$PWD/" == "$DIR/"* ]]
+	then
+		ID=`echo $MOUNT | awk '{print $1}'`
+		echo $ID
+	fi
+done
