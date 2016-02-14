@@ -28,6 +28,7 @@ RUN	\
 		socat \
 		curl \
 		graphicsmagick \
+		msmtp \
 	&& rm -r /var/lib/apt/lists/*
 
 RUN	\
@@ -70,4 +71,5 @@ RUN	docker-php-ext-install \
 		pgsql \
 		pdo_pgsql
 
-COPY apache2-foreground /usr/local/bin/
+COPY	sendmail.ini		/usr/local/etc/php/conf.d/
+COPY	apache2-foreground	/usr/local/bin/
