@@ -1,0 +1,54 @@
+redis:
+  image: redis
+  labels:
+    - traefik.enable=false
+  restart: always
+postgres:
+  image: postgres
+  environment:
+    POSTGRES_USER: sentry
+    POSTGRES_PASSWORD: sentry
+  labels:
+    - traefik.enable=false
+  restart: always
+sentry:
+  image: sentry
+  links:
+    - redis:redis
+    - postgres:postgres
+  env_file:
+    - ./sentry.env
+  environment:
+    - VIRTUAL_HOST=sentry
+    - VIRTUAL_PORT=9000
+  labels:
+    - traefik.port=9000
+    - traefik.frontend.rule=Host
+    - traefik.frontend.value=sentry
+  restart: always
+beat:
+  image: sentry
+  links:
+    - redis:redis
+    - postgres:postgres
+  env_file:
+    - ./sentry.env
+  environment:
+    CELERY_BROKER_URL: 'redis://redis'
+  labels:
+    - traefik.enable=false
+  command: sentry celery beat
+  restart: always
+worker:
+  image: sentry
+  links:
+    - redis:redis
+    - postgres:postgres
+  env_file:
+    - ./sentry.env
+  environment:
+    CELERY_BROKER_URL: 'redis://redis'
+  labels:
+    - traefik.enable=false
+  command: sentry celery worker
+  restart: always
