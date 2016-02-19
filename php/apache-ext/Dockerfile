@@ -31,6 +31,8 @@ RUN	\
 		msmtp \
 	&& rm -r /var/lib/apt/lists/*
 
+RUN	a2enmod rewrite headers expires
+
 RUN	\
 	   curl https://pecl.php.net/get/mongo-${MONGO_VERSION}.tgz | tar -xpz -C /usr/src/php/ext \
 	&& mv /usr/src/php/ext/mongo-${MONGO_VERSION} /usr/src/php/ext/mongo \
