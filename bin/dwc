@@ -26,7 +26,7 @@ if [ -z "$ID" ]; then
 	exit -1
 fi
 
-if [ `echo $ID | wc -l` \> 1 ]; then
+if [ `echo $ID | wc -w` \> 1 ]; then
 	echo "more then one container found:"
 	echo $ID
 	exit -1
