@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for ID in $( docker ps -q ); do
+	docker inspect --format='# {{.Name}}{{":\n"}}{{range $mount := .Mounts}}{{$mount.Source}}{{"\n ->\t"}}{{$mount.Destination}}{{"\n"}}{{end}}' $ID; 
+done
+

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+MOUNTS=""
+
+for ID in $( docker ps -qa ); do
+	MOUNTS+="$(docker inspect --format='{{with $info := . }}{{range $mount := $info.Mounts}}{{ if $mount.Name }}{{ "\n" }}{{$mount.Name}}{{ "\t" }}{{ $info.Name }}:{{$mount.Destination}}{{end}}{{end}}{{end}}' $ID)"
+done
+
+for ID in $( docker volume ls -q); do
+	VOLMOUNTS="$(echo "$MOUNTS" | awk "/^$ID\t/ { print \"\t\" \$2 }")"
+
+	case $1 in
+	--only-not-mounted)
+		if [ -z "$VOLMOUNTS" ]; then
+			echo "$ID"
+		fi
+	;;
+	*)
+		echo "$ID"
+		if [ ! -z "$VOLMOUNTS" ]; then
+			echo "$VOLMOUNTS"
+		else
+			echo "* NOT MOUNTED *"
+		fi
+	;;
+	esac
+done
