@@ -1,6 +1,8 @@
 FROM alpine
 
-RUN apk --update add \
+RUN 	apk update \
+	&& apk upgrade \
+	&& apk --update add \
 	curl \
 	msmtp \
 	php-apache2 \
@@ -23,14 +25,14 @@ RUN apk --update add \
 	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
 	&& mkdir /app \
 	&& chown -R apache:apache /app \
-	&& sed -i 's#^DocumentRoot ".*#DocumentRoot "/app"#g'       /etc/apache2/httpd.conf \
-	&& sed -i 's#^ErrorLog .*#ErrorLog /dev/stderr#'            /etc/apache2/httpd.conf \
-	&& sed -i 's#^CustomLog .*#CustomLog /dev/stdout combined#' /etc/apache2/httpd.conf \
-	&& echo '<Directory "/app">'                             >> /etc/apache2/httpd.conf \
-	&& echo '  AllowOverride All'                            >> /etc/apache2/httpd.conf \
-	&& echo '  Options FollowSymLinks'                       >> /etc/apache2/httpd.conf \
-	&& echo '  Require all granted'                          >> /etc/apache2/httpd.conf \
-	&& echo '</Directory>'                                   >> /etc/apache2/httpd.conf \
+	&& sed -i 's#^DocumentRoot ".*#DocumentRoot "/app"#g'                                         /etc/apache2/httpd.conf \
+	&& sed -i 's#^ErrorLog .*#ErrorLog /dev/stderr#'                                              /etc/apache2/httpd.conf \
+	&& sed -i 's#\s*CustomLog .*#CustomLog /dev/stdout combined#'                                 /etc/apache2/httpd.conf \
+	&& echo '<Directory "/app">'                                                               >> /etc/apache2/httpd.conf \
+	&& echo '  AllowOverride All'                                                              >> /etc/apache2/httpd.conf \
+	&& echo '  Options FollowSymLinks'                                                         >> /etc/apache2/httpd.conf \
+	&& echo '  Require all granted'                                                            >> /etc/apache2/httpd.conf \
+	&& echo '</Directory>'                                                                     >> /etc/apache2/httpd.conf \
 	&& sed -i 's|^#LoadModule rewrite_module.*|LoadModule rewrite_module modules/mod_rewrite.so|' /etc/apache2/httpd.conf \
 	&& sed -i 's|^#LoadModule expires_module.*|LoadModule expires_module modules/mod_expires.so|' /etc/apache2/httpd.conf
 
