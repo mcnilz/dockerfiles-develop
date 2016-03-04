@@ -10,7 +10,9 @@ if [ ! -z "$WWW_DATA_UID" ]; then
 	else
 		sed -i "s#^apache:.*#apache:x:${WWW_DATA_UID}:81:apache:/var/www:/sbin/nologin#" /etc/passwd
 	fi
-	chown -R apache:apache /var/run/apache2
 fi
+
+mkdir -p /run/apache2
+chown -R apache:apache /run/apache2
 
 httpd -D FOREGROUND
