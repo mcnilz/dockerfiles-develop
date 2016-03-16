@@ -10,7 +10,9 @@ docker run \
 	$@ \
 	mongo-express
 
+# exposed port 8081:
+#   -p 127.0.0.1:8081:8081
 # some env:
-#   ME_CONFIG_MONGODB_AUTH_USERNAME
-#   ME_CONFIG_MONGODB_AUTH_PASSWORD
+#   -e ME_CONFIG_MONGODB_AUTH_USERNAME=admin
+#   -e ME_CONFIG_MONGODB_AUTH_PASSWORD=pass
 #   more at https://github.com/mongo-express/mongo-express
