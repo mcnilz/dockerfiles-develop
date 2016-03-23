@@ -12,19 +12,19 @@ Das Image erwartet als Parameter einen Befehl. Das Skript ``cmd.sh`` kümmert si
 
 ### gpg-init
 
-``./cmd.sh /settings und /files-to-backup gpg-init``
+``./cmd.sh /settings /files-to-backup gpg-init``
 
 Erzeugt die Schlüssel. Diese liegen dann unter ``/settings``
 
 ### duply-init
 
-``./cmd.sh /settings und /files-to-backup duply-init my-project``
+``./cmd.sh /settings /files-to-backup duply-init my-project``
 
 Erzeugt das Duply Projekt. Es kopiert dabei die Keys in das Projekt-Verzeichnis ``/settings/my-project`` und trägt die Schlüssel ID schon in die ``/settings/my-project/conf`` ein.
 Danach sollte man gleich mit ```sudo nano /settings/my-project/conf``` zumindest die Parameter ``GPG_PW``, ``SOURCE``, ``TARGET`` und ``MAX_AGE``setzen. Die ``/files-to-backup`` sind im Container unter ``/mnt`` eingebunden.
 
 ### duply-run
 
-``./cmd.sh /settings und /files-to-backup duply-run my-project``
+``./cmd.sh /settings /files-to-backup duply-run my-project``
 
 Führt das Backup aus und sollte wenn es funktioniert in cron eingetragen werden.
