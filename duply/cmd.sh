@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 WORKDIR=$1
 MOUNT=$2
@@ -20,8 +20,25 @@ if [ -z "$CMD" ]; then
 	exit 1
 fi
 
-
 TIME=`date +%s`
+TMPVOL="duply-run-tmp-$TIME"
+CNTNAME="duply-run-$TIME"
 
-docker run -h duply -v "${WORKDIR}":/root/.duply -v "${MOUNT}":/mnt -ti --name="duply-run-$TIME" duply $CMD $PARAM
-docker rm "duply-run-$TIME"
+docker volume create --name="$TMPVOL"
+
+docker run \
+	--env="TMPDIR=/tmp" \
+	--volume="$TMPVOL:/tmp" \
+	--read-only \
+	--tmpfs="/root/.gnupg" \
+	--tmpfs="/root/.cache" \
+	--hostname duply \
+	--volume="${WORKDIR}:/root/.duply" \
+	--volume="${MOUNT}:/mnt" \
+	--tty \
+	--interactive \
+	--name="$CNTNAME" \
+	duply $CMD $PARAM
+
+docker rm "$CNTNAME"
+docker volume rm "$TMPVOL"
