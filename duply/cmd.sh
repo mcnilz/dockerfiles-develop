@@ -31,7 +31,7 @@ docker run \
 	--volume="$TMPVOL:/tmp" \
 	--read-only \
 	--tmpfs="/root/.gnupg" \
-	--tmpfs="/root/.cache" \
+	--volume="duply-archive-keep-and-share:/root/.cache/" \
 	--hostname duply \
 	--volume="${WORKDIR}:/root/.duply" \
 	--volume="${MOUNT}:/mnt" \
