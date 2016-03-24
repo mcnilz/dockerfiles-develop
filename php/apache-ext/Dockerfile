@@ -3,8 +3,10 @@ FROM	php:5.6-apache
 MAINTAINER Martin Schnabel <mcnilz@gmail.com>
 
 ENV	WEB_ROOT		/var/www/html
-ENV	MONGO_VERSION		1.6.12
+ENV	MONGO_VERSION		1.6.13
 ENV	XHPROF_VERSION		0.9.4
+ENV	MEMCACHE_VERSION	3.0.8
+ENV	MEMCACHED_VERSION	2.2.0
 
 RUN	\
 	   sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
@@ -25,6 +27,7 @@ RUN	\
 		libicu-dev \
 		libtidy-dev \
 		zlib1g-dev \
+		libmemcached-dev \
 		socat \
 		curl \
 		graphicsmagick \
@@ -37,7 +40,11 @@ RUN	\
 	   curl https://pecl.php.net/get/mongo-${MONGO_VERSION}.tgz | tar -xpz -C /usr/src/php/ext \
 	&& mv /usr/src/php/ext/mongo-${MONGO_VERSION} /usr/src/php/ext/mongo \
 	&& curl https://pecl.php.net/get/xhprof-${XHPROF_VERSION}.tgz | tar -xpz -C /tmp xhprof-${XHPROF_VERSION}/extension \
-	&& mv /tmp/xhprof-${XHPROF_VERSION}/extension /usr/src/php/ext/xhprof
+	&& mv /tmp/xhprof-${XHPROF_VERSION}/extension /usr/src/php/ext/xhprof \
+	&& curl https://pecl.php.net/get/memcache-${MEMCACHE_VERSION}.tgz | tar -xpz -C /usr/src/php/ext \
+	&& mv /usr/src/php/ext/memcache-${MEMCACHE_VERSION} /usr/src/php/ext/memcache \
+	&& curl https://pecl.php.net/get/memcached-${MEMCACHED_VERSION}.tgz | tar -xpz -C /usr/src/php/ext \
+	&& mv /usr/src/php/ext/memcached-${MEMCACHED_VERSION} /usr/src/php/ext/memcached
 
 RUN	\
 	   echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen \
@@ -57,6 +64,8 @@ RUN	\
 RUN	docker-php-ext-install \
 		xhprof \
 		mongo \
+		memcache \
+		memcached \
 		tidy \
 		iconv \
 		sockets \
@@ -71,7 +80,9 @@ RUN	docker-php-ext-install \
 		mysql \
 		pdo_mysql \
 		pgsql \
-		pdo_pgsql
+		pdo_pgsql \
+	&& find /usr/src/php/ext -type d -name 'build' -print | xargs /bin/rm -rf \
+	&& find /usr/src/php/ext -type d -name 'autom4te.cache' -print | xargs /bin/rm -rf
 
 COPY	sendmail.ini		/usr/local/etc/php/conf.d/
 COPY	apache2-foreground	/usr/local/bin/
