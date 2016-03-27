@@ -13,8 +13,19 @@ RUN	apt-get update \
 		libxml2-dev \
 		sshfs \
 		sudo \
+		python-dev \
+		python-setuptools \
 	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/*
+	&& rm -rf /var/lib/apt/lists/* \
+	&& easy_install pip \
+	&& mkdir /tmp/codeintel \
+	&& cd /tmp/codeintel \
+	&& pip install --download /tmp/codeintel codeintel==0.9.3 \
+	&& tar xf CodeIntel-0.9.3.tar.gz \
+	&& mv CodeIntel-0.9.3/SilverCity CodeIntel-0.9.3/silvercity \
+	&& tar czf CodeIntel-0.9.3.tar.gz CodeIntel-0.9.3 \
+	&& pip install -U --no-index --find-links=/tmp/codeintel codeintel \
+	&& rm -rf /tmp/codeintel
 
 ENV	NODE_ENV production
 RUN	git clone https://github.com/c9/core.git /cloud9
