@@ -75,6 +75,9 @@ RUN	docker-php-ext-install \
 		intl \
 		xmlrpc \
 		xsl \
+		soap \
+		ctype \
+		json \
 		mcrypt \
 		gd \
 		mysql \
