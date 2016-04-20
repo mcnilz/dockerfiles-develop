@@ -18,6 +18,9 @@ RUN	apt-get update \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& easy_install pip \
+	&& pip install -U virtualenv \
+	&& virtualenv --python=python2 /root/.c9/python2 \
+	&& . /root/.c9/python2/bin/activate \
 	&& mkdir /tmp/codeintel \
 	&& cd /tmp/codeintel \
 	&& pip install --download /tmp/codeintel codeintel==0.9.3 \
