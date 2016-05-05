@@ -1,14 +1,14 @@
 #!/bin/bash
 
-docker pull dockerui/dockerui
+docker pull "uifd/ui-for-docker"
 
 docker run \
 	--detach \
 	--restart=always \
 	--privileged \
 	--volume="/var/run/docker.sock:/var/run/docker.sock" \
-	--name="dockerui" \
+	--name="ui-for-docker" \
 	$@ \
-	dockerui/dockerui
+	"uifd/ui-for-docker"
 
 # port 9000

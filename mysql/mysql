@@ -10,5 +10,6 @@ docker run \
 	--name mysql \
 	--env-file ./mysql.env \
 	--volume mysql-data:/var/lib/mysql \
+	--label traefik.enable=false \
 	$@ \
 	mysql:5.6

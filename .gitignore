@@ -1,2 +1,3 @@
 sentry/sentry.env
 lynis/lynis/
+mysql/mysql.env

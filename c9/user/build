@@ -1,0 +1,1 @@
+docker build --build-arg USER_ID=${UID} --build-arg USER_NAME=${USER} -t c9-user-${USER} .

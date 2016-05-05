@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+CONTAINER=$1
+
+if [ -z "$CONTAINER" ]; then
+	echo 'Missing container parameter'
+	exit 1
+fi
+
+set +e
+RUNNING=$(docker inspect --format="{{ .State.Running }}" $CONTAINER 2> /dev/null)
+set -e
+
+if [ "$RUNNING" == "true" ]; then
+	echo Stopping container...
+	docker stop -t 1 ${CONTAINER}
+fi
+
+set +e
+RUNNING=$(docker inspect --format="{{ .State.Running }}" $CONTAINER 2> /dev/null)
+set -e
+
+if [ "$RUNNING" == "false" ]; then
+	echo Removing container...
+	docker rm ${CONTAINER}
+fi

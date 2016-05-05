@@ -6,5 +6,6 @@ docker run \
 	--name mongo \
 	--volume mongo-data-db:/data/db \
 	--volume mongo-configdb:/data/configdb \
+	--label traefik.enable=false \
 	$@ \
 	mongo:3.2

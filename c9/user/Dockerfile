@@ -20,6 +20,7 @@ RUN	sudo mv /root/.c9 /home/${USER_NAME} \
 	&& ln -sf /home/${USER_NAME}/.c9/local/bin/tmux \
 	&& ln -sf /home/${USER_NAME}/.c9/lib/sqlite3/sqlite3
 ENV	TERMINFO_DIRS /home/${USER_NAME}/.c9/local/share/terminfo
+RUN	sudo usermod -aG docker ${USER_NAME}
 
 CMD	node /cloud9/server.js --listen 0.0.0.0 --port 8080 -w /workspace
 EXPOSE	8080
