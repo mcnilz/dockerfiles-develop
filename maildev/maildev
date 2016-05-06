@@ -7,4 +7,5 @@ docker run \
 	-e "VIRTUAL_PORT=80" \
 	-l "traefik.port=80" \
 	--name maildev \
+	$@ \
 	djfarrelly/maildev
