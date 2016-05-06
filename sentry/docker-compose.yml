@@ -19,9 +19,11 @@ sentry:
   env_file:
     - ./sentry.env
   environment:
+      # proxy with nginx-proxy: https://github.com/jwilder/nginx-proxy
     - VIRTUAL_HOST=sentry
     - VIRTUAL_PORT=9000
   labels:
+      # proxy with traefik: http://traefik.readthedocs.io/en/latest/backends/#docker-backend
     - traefik.port=9000
     - traefik.frontend.rule=Host
     - traefik.frontend.value=sentry
