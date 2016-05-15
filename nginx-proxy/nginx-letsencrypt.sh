@@ -9,7 +9,5 @@ docker run \
 	--volume nginx-proxy-vhost:/etc/nginx/vhost.d \
 	--volume nginx-proxy-html:/usr/share/nginx/html \
 	-e NGINX_PROXY_CONTAINER=nginx-proxy \
-	-p 80:80 \
-	-p 443:443 \
 	$@ \
 	jrcs/letsencrypt-nginx-proxy-companion
