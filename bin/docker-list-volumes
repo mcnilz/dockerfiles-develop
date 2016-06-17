@@ -8,6 +8,13 @@ done
 
 for ID in $( docker volume ls -q); do
 	VOLMOUNTS="$(echo "$MOUNTS" | awk "/^$ID\t/ { print \"\t\" \$2 }")"
+	DIR=$(docker volume inspect --format='{{ .Mountpoint }}' "$ID")
+	if [ ! "$(ls -A $DIR)" ];
+		then
+			EMPTY="* EMPTY DIRECTORY *"
+		else
+			EMPTY=""
+	fi
 
 	case $1 in
 	--only-not-mounted)
@@ -15,12 +22,28 @@ for ID in $( docker volume ls -q); do
 			echo "$ID"
 		fi
 	;;
+	--only-not-mounted-empty)
+		if [ -z "$VOLMOUNTS" ]; then
+			if [ -n "$EMPTY" ]; then
+				echo "$ID"
+			fi
+		fi
+	;;
+	--only-not-mounted-not-empty)
+		if [ -z "$VOLMOUNTS" ]; then
+			if [ -z "$EMPTY" ]; then
+				echo "$ID"
+				ls -la $DIR
+				echo ""
+			fi
+		fi
+	;;
 	*)
 		echo "$ID"
 		if [ ! -z "$VOLMOUNTS" ]; then
 			echo "$VOLMOUNTS"
 		else
-			echo "* NOT MOUNTED *"
+			echo "* NOT MOUNTED * $EMPTY"
 		fi
 	;;
 	esac
