@@ -1,0 +1,12 @@
+#!/bin/bash
+
+docker run \
+	-d \
+	--restart=always \
+	-e "VIRTUAL_HOST=maildev" \
+	-e "VIRTUAL_PORT=9000" \
+	-l "traefik.port=9000" \
+	--name portainer \
+	-v /var/run/docker.sock:/var/run/docker.sock:ro \
+	$@ \
+	portainer/portainer
