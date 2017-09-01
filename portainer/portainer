@@ -8,5 +8,6 @@ docker run \
 	-l "traefik.port=9000" \
 	--name portainer \
 	-v /var/run/docker.sock:/var/run/docker.sock:ro \
+	-v $PWD/data:/data \
 	$@ \
 	portainer/portainer
