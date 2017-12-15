@@ -3,8 +3,9 @@
 docker pull traefik
 
 docker run -d -p 127.0.0.1:8080:8080 -p 127.0.0.1:80:80 \
+	--memory 250M --memory-swap 300M \
 	-v /var/run/docker.sock:/var/run/docker.sock:ro \
 	-v $PWD/traefik.toml:/traefik.toml:ro \
 	--name traefik \
-	--restart always \
+	--restart unless-stopped \
 	traefik
