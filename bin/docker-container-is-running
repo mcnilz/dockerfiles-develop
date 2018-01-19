@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+if [ "$(docker inspect --format="{{ .State.Running }}" $1 2> /dev/null)" == "true" ]; then
+	echo "yes"
+fi
