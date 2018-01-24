@@ -1,0 +1,32 @@
+version: '2.1'
+
+networks:
+  mysql:
+    external:
+      name: mysql
+
+  traefik:
+    external:
+      name: traefik
+
+services:
+  main:
+    image: webvariants/php:${VERSION}
+    volumes:
+      - "$WEB_ROOT:$WEB_ROOT"
+    working_dir: "$WEB_ROOT"
+    networks:
+      - traefik
+      - mysql
+    labels:
+      - traefik.port=80
+      - traefik.frontend.rule=Host:${HOST}
+      - traefik.frontend.passHostHeader=true
+      - traefik.docker.network=traefik
+    environment:
+      WEB_ROOT: "$WEB_ROOT"
+      WWW_DATA_UID: "$WWW_DATA_UID"
+      WWW_DATA_GID: "$WWW_DATA_GID"
+      PHP_TYPO3_INI: "1"
+      PHP_OPCACHE_INI: "1"
+      PHP_OPCACHE_INI_FAST_SHOTDOWN: "1"
