@@ -1,0 +1,48 @@
+version: "2.3"
+
+networks:
+  mysql:
+    name: mysql
+  proxy:
+    name: proxy
+
+services:
+  mysql:
+    image: mysql:5.7
+    environment: ["MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD?err}"]
+    volumes: ["./data/mysql/lib:/var/lib/mysql"]
+    networks: ["mysql"]
+    restart: unless-stopped
+    labels: ["traefik.enable=false"]
+    mem_limit: 500M
+    memswap_limit: 600M
+
+  traefik:
+    image: traefik
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./config/traefik.toml:/traefik.toml:ro"
+    ports: ["127.0.0.1:8080:8080", "127.0.0.1:80:80", "::1:8080:8080", "::1:80:80"]
+    networks: ["proxy"]
+    restart: unless-stopped
+    mem_limit: 200M
+    memswap_limit: 250M
+
+  maildev:
+    image: djfarrelly/maildev
+    labels: ["traefik.port=80", "traefik.enable=true", "traefik.docker.network=proxy"]
+    restart: unless-stopped
+    mem_limit: 50M
+    memswap_limit: 100M
+    networks: ["proxy"]
+
+  portainer:
+    image: portainer/portainer
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./data/portainer/data:/data"
+    labels: ["traefik.port=9000", "traefik.enable=true", "traefik.docker.network=proxy"]
+    restart: unless-stopped
+    mem_limit: 100M
+    memswap_limit: 200M
+    networks: ["proxy"]

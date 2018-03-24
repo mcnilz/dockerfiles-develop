@@ -1,4 +1,7 @@
+*~
 sentry/sentry.env
 lynis/lynis/
 mysql/mysql.env
 portainer/data/
+dev/data/
+dev/.env
