@@ -22,8 +22,8 @@ TEMPLATE="$1"
 export VERSION="$2"
 export HOST="$3"
 export WEB_ROOT="$PWD"
-WWW_DATA_UID=${UID}
-WWW_DATA_GID=`id -g $USER`
+export WWW_DATA_UID=${UID}
+export WWW_DATA_GID=`id -g $USER`
 export COMPOSE_OPTIONS="-e VERSION=$VERSION -e HOST=$HOST -e WEB_ROOT=$WEB_ROOT -e WWW_DATA_UID=$WWW_DATA_UID -e WWW_DATA_GID=$WWW_DATA_GID"
 
 docker-compose --file "$MYPATH/docker-compose.$TEMPLATE.yml" --project-directory "$PWD" --project-name "$NAME" run --rm main
