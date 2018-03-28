@@ -1,14 +1,14 @@
 #!/bin/bash -e
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-VERSION="1.20.1"
-ARCH="$(uname -s)-$(uname -m)"
-URL="https://github.com/docker/compose/releases/download/$VERSION/docker-compose-$ARCH"
-NAME="docker-compose-$VERSION"
+DOCKER_COMPOSE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DOCKER_COMPOSE_VERSION="1.20.1"
+DOCKER_COMPOSE_ARCH="$(uname -s)-$(uname -m)"
+DOCKER_COMPOSE_URL="https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$DOCKER_COMPOSE_ARCH"
+DOCKER_COMPOSE_NAME="docker-compose-$DOCKER_COMPOSE_VERSION-$DOCKER_COMPOSE_ARCH"
 
-if [ ! -f "$DIR/$NAME" ]; then
-    curl -L "$URL" -o "$DIR/$NAME"
-    chmod +x "$DIR/$NAME"
+if [ ! -f "$DOCKER_COMPOSE_DIR/$DOCKER_COMPOSE_NAME" ]; then
+    curl -L "$DOCKER_COMPOSE_URL" -o "$DOCKER_COMPOSE_DIR/$DOCKER_COMPOSE_NAME"
+    chmod +x "$DOCKER_COMPOSE_DIR/$DOCKER_COMPOSE_NAME"
 fi
 
-exec "$DIR/$NAME" "$@"
+exec "$DOCKER_COMPOSE_DIR/$DOCKER_COMPOSE_NAME" "$@"
