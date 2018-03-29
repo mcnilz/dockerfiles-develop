@@ -25,8 +25,8 @@ services:
       - traefik.docker.network=traefik
     environment:
       WEB_ROOT: "$WEB_ROOT"
-      WWW_DATA_UID: "$WWW_DATA_UID"
-      WWW_DATA_GID: "$WWW_DATA_GID"
+      WWW_DATA_UID: "$USER_UID"
+      WWW_DATA_GID: "$USER_GID"
       PHP_TYPO3_INI: "1"
       PHP_OPCACHE_INI: "1"
       PHP_OPCACHE_INI_FAST_SHOTDOWN: "1"

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-MYPATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-NAME=`basename "$PWD"`
+export DOCKER_COMPOSE_TEMPLATE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+export DOCKER_COMPOSE_PROJECT_NAME=`basename "$PWD"`
 
 if [ -z "$1" ]; then
     echo "template name (ex. php) required"
@@ -22,8 +22,9 @@ TEMPLATE="$1"
 export VERSION="$2"
 export HOST="$3"
 export WEB_ROOT="$PWD"
-export WWW_DATA_UID=${UID}
-export WWW_DATA_GID=`id -g $USER`
-export COMPOSE_OPTIONS="-e VERSION=$VERSION -e HOST=$HOST -e WEB_ROOT=$WEB_ROOT -e WWW_DATA_UID=$WWW_DATA_UID -e WWW_DATA_GID=$WWW_DATA_GID"
+export USER_UID=$(id -u)
+export USER_GID=$(id -g)
+export USER_NAME=$(id -un)
+export USER_GROUP=$(id -gn)
 
-docker-compose --file "$MYPATH/docker-compose.$TEMPLATE.yml" --project-directory "$PWD" --project-name "$NAME" run --rm main
+docker-compose --file "$DOCKER_COMPOSE_TEMPLATE_PATH/docker-compose.$TEMPLATE.yml" --project-directory "$PWD" --project-name "$DOCKER_COMPOSE_PROJECT_NAME" run --rm main
