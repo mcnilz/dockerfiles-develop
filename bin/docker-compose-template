@@ -27,4 +27,8 @@ export USER_GID=$(id -g)
 export USER_NAME=$(id -un)
 export USER_GROUP=$(id -gn)
 
-docker-compose --file "$DOCKER_COMPOSE_TEMPLATE_PATH/docker-compose.$TEMPLATE.yml" --project-directory "$PWD" --project-name "$DOCKER_COMPOSE_PROJECT_NAME" run --rm main
+if [ -z "$4" ]; then
+	exec docker-compose --file "$DOCKER_COMPOSE_TEMPLATE_PATH/docker-compose.$TEMPLATE.yml" --project-directory "$PWD" --project-name "$DOCKER_COMPOSE_PROJECT_NAME" run --rm main
+fi
+
+exec docker-compose --file "$DOCKER_COMPOSE_TEMPLATE_PATH/docker-compose.$TEMPLATE.yml" --project-directory "$PWD" --project-name "$DOCKER_COMPOSE_PROJECT_NAME" run -u $USER_UID --rm main "${@:4}"
