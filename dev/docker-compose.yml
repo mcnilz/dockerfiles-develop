@@ -5,10 +5,13 @@ networks:
     name: mysql
   proxy:
     name: proxy
+  traefik:
+    name: traefik
 
 services:
   mysql:
     image: mysql:5.7
+    command: ["mysqld", "--sql_mode="]
     environment: ["MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD?err}"]
     volumes: ["./data/mysql/lib:/var/lib/mysql"]
     networks: ["mysql"]
@@ -16,6 +19,7 @@ services:
     labels: ["traefik.enable=false"]
     mem_limit: 500M
     memswap_limit: 600M
+    ports: ["127.0.0.1:3306:3306", "::1:3306:3306"]
 
   traefik:
     image: traefik
@@ -23,7 +27,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./config/traefik.toml:/traefik.toml:ro"
     ports: ["127.0.0.1:8080:8080", "127.0.0.1:80:80", "::1:8080:8080", "::1:80:80"]
-    networks: ["proxy"]
+    networks: ["proxy", "traefik"]
     restart: unless-stopped
     mem_limit: 200M
     memswap_limit: 250M

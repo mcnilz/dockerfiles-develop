@@ -5,4 +5,4 @@ address = ":8080"
 endpoint = "unix:///var/run/docker.sock"
 domain = "docker.localhost"
 watch = true
-exposedbydefault = false
+exposedbydefault = true
