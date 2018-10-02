@@ -32,7 +32,7 @@ services:
     mem_limit: 200M
     memswap_limit: 250M
 
-  maildev:
+  mail:
     image: djfarrelly/maildev
     labels: ["traefik.port=80", "traefik.enable=true", "traefik.docker.network=proxy"]
     restart: unless-stopped
@@ -50,3 +50,17 @@ services:
     mem_limit: 100M
     memswap_limit: 200M
     networks: ["proxy"]
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+#     - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD?err}
+    restart: unless-stopped
+    volumes:
+      - ./data/phpmyadmin/sessions:/sessions
+    labels: ["traefik.port=80", "traefik.enable=true", "traefik.docker.network=proxy"]
+    networks: ["mysql", "proxy"]
