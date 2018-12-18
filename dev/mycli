@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [[ "$(docker images -q mycli 2> /dev/null)" == "" ]]; then
+	echo "FROM debian
+RUN apt-get update && apt-get -y install mycli
+RUN useradd -ms /bin/bash john
+USER john
+WORKDIR /home/john
+ENTRYPOINT [\"mycli\"]" \
+	| docker build --pull --force-rm --tag mycli -
+fi
+
+docker run \
+	--rm \
+	-ti \
+	-e LC_ALL=C.UTF-8 \
+	-e LANG=C.UTF-8 \
+	--network mysql \
+	mycli \
+	-h mysql -u root -proot $@
