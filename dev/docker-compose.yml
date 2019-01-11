@@ -33,7 +33,9 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./config/traefik.toml:/traefik.toml:ro"
-    ports: ["127.0.0.1:8080:8080", "127.0.0.1:80:80", "::1:8080:8080", "::1:80:80"]
+      - type: tmpfs
+        target: /tmp
+    ports: ["127.0.0.1:8080:8080", "127.0.0.1:80:80", "127.0.0.1:443:443", "::1:8080:8080", "::1:80:80", "::1:443:443"]
     networks: ["proxy", "traefik"]
     restart: unless-stopped
     mem_limit: 200M
