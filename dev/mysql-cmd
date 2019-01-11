@@ -1,0 +1,9 @@
+#!/bin/bash
+
+docker run \
+	--rm \
+	--read-only \
+	-ti \
+	--network mysql \
+	mysql:5.7 \
+	mysql -h mysql -u root -proot $@

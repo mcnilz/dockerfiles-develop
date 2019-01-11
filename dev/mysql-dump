@@ -1,0 +1,19 @@
+#!/bin/bash
+
+FILE=$(realpath $1)
+
+if [ -f "$FILE" ]; then
+    echo "File already exists."
+    exit
+fi
+
+touch "$FILE"
+
+docker run \
+	--rm \
+	--read-only \
+	--link mysql \
+	-v "$FILE:/dump.sql" \
+	--network mysql \
+	mysql:5.7 \
+	/bin/bash -c "mysqldump -h mysql -u root -proot ${2} > /dump.sql"
