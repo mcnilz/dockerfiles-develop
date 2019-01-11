@@ -5,3 +5,8 @@ mysql/mysql.env
 portainer/data/
 dev/data/
 dev/.env
+/dev/certs/
+/mongo/dump/
+/mysql/*.sql
+/mysql/*.sql.gz
+/bin/docker-compose-*-*
