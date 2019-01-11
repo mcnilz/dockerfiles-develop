@@ -21,7 +21,7 @@ services:
       - traefik
       - mysql
     labels:
-      - traefik.port=8080
+      - traefik.port=80
       - traefik.frontend.rule=Host:${HOST}
       - traefik.frontend.passHostHeader=true
       - traefik.docker.network=traefik
@@ -36,17 +36,17 @@ services:
       PHP_TYPO3_INI: "1"
       PHP_OPCACHE_INI: "1"
       PHP_OPCACHE_INI_FAST_SHUTDOWN: "1"
-#      SecRuleEngine: "On"
-#      SecExclude: "SecRuleRemoveById \"942100-949110\""
-      PHPINI_ZEND_EXTENSION: "xdebug.so"
-      PHPINI_XDEBUG__REMOTE_ENABLE: "1"
-      PHPINI_XDEBUG__REMOTE_HOST: "10.0.0.35"
-      PHPINI_XDEBUG__REMOTE_CONNECT_BACK: "1"
-      PHPINI_XDEBUG__REMOTE_PORT: "9000"
-      PHPINI_XDEBUG__REMOTE_HANDLER: "dbgp"
-      PHPINI_XDEBUG__REMOTE__MODE: "req"
-      PHPINI_XDEBUG__REMOTE_AUTOSTART: "true"
-      PHPINI_XDEBUG__IDEKEY: "netbeans-xdebug"
+      # SecRuleEngine: "On"
+      # SecExclude: "SecRuleRemoveById 980130 949110"
+      # PHPINI_ZEND_EXTENSION: "xdebug.so"
+      # PHPINI_XDEBUG__REMOTE_ENABLE: "1"
+      # PHPINI_XDEBUG__REMOTE_HOST: "10.0.0.35"
+      # PHPINI_XDEBUG__REMOTE_CONNECT_BACK: "1"
+      # PHPINI_XDEBUG__REMOTE_PORT: "9000"
+      # PHPINI_XDEBUG__REMOTE_HANDLER: "dbgp"
+      # PHPINI_XDEBUG__REMOTE__MODE: "req"
+      # PHPINI_XDEBUG__REMOTE_AUTOSTART: "true"
+      # PHPINI_XDEBUG__IDEKEY: "netbeans-xdebug"
       # PHPINI_xdebug__profiler_enable_trigger: "1"
       # PHPINI_xdebug__profiler_output_dir: "$WEB_ROOT/data"
       # PHPINI_xdebug__profiler_output_name: "cachegrind.out.%t.%p"

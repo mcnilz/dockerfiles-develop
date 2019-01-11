@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DOCKER_COMPOSE_TEMPLATE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+export DOCKER_COMPOSE_TEMPLATE_PATH="$(dirname $(realpath "${BASH_SOURCE[0]}"))"
 export DOCKER_COMPOSE_PROJECT_NAME=`basename "$PWD"`
 
 if [ -z "$1" ]; then
