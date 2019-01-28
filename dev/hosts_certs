@@ -14,4 +14,6 @@ NAMES=$(cat /etc/hosts | grep -P "^127.\d+.\d+.\d+\s+" | sed -E "s/^127\.[0-9.]+
 
 mkdir -p "$CERTS"
 
+"$BIN/mkcert" -install
+
 "$BIN/mkcert" -cert-file="$CERTS/hosts.pem" -key-file="$CERTS/hosts-key.pem" $NAMES "localhost" "docker.localhost" "*.docker.localhost"
