@@ -1,3 +1,6 @@
+logLevel = "INFO" #DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+defaultEntryPoints = ["http", "https"]
+
 [web]
 address = ":8080"
 
@@ -6,3 +9,13 @@ endpoint = "unix:///var/run/docker.sock"
 domain = "docker.localhost"
 watch = true
 exposedbydefault = true
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+  [entryPoints.https]
+  address = ":443"
+     [entryPoints.https.tls]
+      [[entryPoints.https.tls.certificates]]
+      certFile = "/certs/hosts.pem"
+      keyFile = "/certs/hosts-key.pem"

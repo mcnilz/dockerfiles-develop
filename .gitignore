@@ -6,6 +6,7 @@ portainer/data/
 dev/data/
 dev/.env
 /dev/certs/
+/dev/bin/mkcert
 /mongo/dump/
 /mysql/*.sql
 /mysql/*.sql.gz
