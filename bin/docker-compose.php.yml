@@ -13,6 +13,8 @@ services:
   main:
     image: webvariants/php:${VERSION}
     volumes:
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
       - "$WEB_ROOT:$WEB_ROOT"
     working_dir: "$WEB_ROOT"
     networks:
@@ -24,11 +26,23 @@ services:
       - traefik.frontend.passHostHeader=true
       - traefik.docker.network=traefik
     environment:
+      PHP_IMAGE_VERSION: "2"
       WEB_ROOT: "$WEB_ROOT"
+      APP_DATA: "$WEB_ROOT/data"
       WWW_DATA_UID: "$USER_UID"
       WWW_DATA_GID: "$USER_GID"
-#      SecRuleEngine: "On"
-#      SecExclude: "SecRuleRemoveById \"942100-949110\""
+      WWW_USER: "$USER_NAME"
+      WWW_GROUP: "$USER_GROUP"
       PHP_TYPO3_INI: "1"
       PHP_OPCACHE_INI: "1"
       PHP_OPCACHE_INI_FAST_SHUTDOWN: "1"
+      # SecRuleEngine: "On"
+      # SecExclude: "SecRuleRemoveById 980130 949110"
+      PHP_ZEND_EXTENSIONS: "xdebug.so"
+      PHPINI_XDEBUG__REMOTE_ENABLE: "1"
+      PHPINI_XDEBUG__REMOTE_HOST: "10.0.0.83"
+      PHPINI_XDEBUG__REMOTE_CONNECT_BACK: "1"
+      PHPINI_XDEBUG__REMOTE_PORT: "9000"
+      PHPINI_XDEBUG__REMOTE_HANDLER: "dbgp"
+      PHPINI_XDEBUG__REMOTE__MODE: "req"
+      PHPINI_XDEBUG__REMOTE_AUTOSTART: "true"
