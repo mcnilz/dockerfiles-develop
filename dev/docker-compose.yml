@@ -28,16 +28,51 @@ services:
     memswap_limit: 600M
     ports: ["127.0.0.1:3306:3306", "::1:3306:3306"]
 
-  traefik:
-    image: traefik
+  # traefik:
+  #   image: traefik
+  #   volumes:
+  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  #     - "./config/traefik.toml:/traefik.toml:ro"
+  #     - "./certs/:/certs/:ro" # run ./hosts_certs to create certificates for /etc/hosts first!
+  #     - type: tmpfs
+  #       target: /tmp
+  #   ports: ["127.0.0.1:8080:8080", "127.0.0.1:80:80", "127.0.0.1:443:443", "::1:8080:8080", "::1:80:80", "::1:443:443"]
+  #   networks: ["proxy", "traefik"]
+  #   restart: unless-stopped
+  #   mem_limit: 200M
+  #   memswap_limit: 250M
+
+  nginx:
+    image: webvariants/nginx-acme-and-more
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./config/traefik.toml:/traefik.toml:ro"
-      - "./certs/:/certs/:ro" # run ./hosts_certs to create certificates for /etc/hosts first!
-      - type: tmpfs
-        target: /tmp
+      - ./conf.d/:/etc/nginx/conf.d/:ro
+      - ./certs/:/etc/nginx/certs/:ro
+      - ./dhparam.pem:/etc/nginx/dhparam/dhparam.pem:ro
+      - ./log:/var/log/nginx
+      - ./html:/html:ro
+    tmpfs:
+      - /tmp
     ports: ["127.0.0.1:8080:8080", "127.0.0.1:80:80", "127.0.0.1:443:443", "::1:8080:8080", "::1:80:80", "::1:443:443"]
     networks: ["proxy", "traefik"]
+    restart: always
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    mem_limit: 512M
+    memswap_limit: 513M
+
+  nginx-dconf:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx-dconf
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - ./conf.d/:/etc/nginx/conf.d/
+      - ./nginx-dconf:/etc/nginx/nginx-dconf:ro
+      - ./html:/html
+    working_dir: /etc/nginx/
+    user: 101:${DOCKER_GID?err}
     restart: unless-stopped
     mem_limit: 200M
     memswap_limit: 250M
@@ -74,3 +109,15 @@ services:
       - ./data/phpmyadmin/sessions:/sessions
     labels: ["traefik.port=80", "traefik.enable=true", "traefik.docker.network=proxy"]
     networks: ["mysql", "proxy"]
+
+  mongo-xh:
+    image: percona/percona-server-mongodb:3.6
+    restart: unless-stopped
+    # (case sensitive) engine: mmapv1, rocksdb, wiredTiger, inMemory
+    command: --storageEngine=inMemory
+    environment:
+      - MONGO_INITDB_DATABASE=xhprof
+    volumes:
+      - ./xhgui.js:/docker-entrypoint-initdb.d/xhgui.js:ro
+      - ./data/mongodb:/data/db # 1001
+    networks: ["proxy"]

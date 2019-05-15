@@ -1,0 +1,4 @@
+#!/bin/bash -e
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+docker-compose kill -s HUP nginx

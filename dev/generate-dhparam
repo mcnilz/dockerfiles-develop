@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+openssl dhparam -out dhparam.pem 2048 2>&1

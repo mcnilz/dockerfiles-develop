@@ -7,7 +7,15 @@ dev/data/
 dev/.env
 /dev/certs/
 /dev/bin/mkcert
+/dev/conf.d/
+/dev/log/
+/dev/html/
+/dev/dhparam.pem
 /mongo/dump/
 /mysql/*.sql
 /mysql/*.sql.gz
 /bin/docker-compose-*-*
+/netdata/lib/
+/netdata/cache/
+/netdata/lib-agent/
+/netdata/cache-agent/

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+if [ ! -e "dhparam.pem" ]; then
+    ./generate-dhparam
+fi
+
+GID=$(id -g)
+
+install -o 101  -g $GID -d ./conf.d
+install -o 101  -g $GID -d ./log
+install -o 101  -g $GID -d ./html
+install -o 1001 -g 0    -d ./data/mongodb
+install -o 999  -g 999  -d ./data/mysql/lib
+
+if [ ! -e ".env" ]; then
+    echo DOCKER_GID=$(stat -c '%g' /var/run/docker.sock) > .env
+    echo MYSQL_ROOT_PASSWORD=$(openssl rand -base64 50 | tr -cd '[:alnum:]' | fold -w30 | head -n 1) >> .env
+fi
+
+echo 'please run ./host_certs as user now!'
