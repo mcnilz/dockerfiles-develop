@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/bin/bash -e
+
+if [ "$(id -u)" = "0" ]; then
+  echo "do not run as root!"
+  exit 1
+fi
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
@@ -8,15 +13,20 @@ fi
 
 GID=$(id -g)
 
-install -o 101  -g $GID -d ./conf.d
-install -o 101  -g $GID -d ./log
-install -o 101  -g $GID -d ./html
-install -o 1001 -g 0    -d ./data/mongodb
-install -o 999  -g 999  -d ./data/mysql/lib
+sudo install -o 101  -g $GID -d ./conf.d
+sudo install -o 101  -g $GID ./conf.d-dist/000-default.conf      ./conf.d/000-default.conf
+sudo install -o 101  -g $GID ./conf.d-dist/001-modsecurity.conf  ./conf.d/001-modsecurity.conf
+sudo install -o 101  -g $GID ./conf.d-dist/999-last.conf         ./conf.d/999-last.conf
+sudo install -o 101  -g $GID -d ./log
+sudo install -o 101  -g $GID -d ./html
+sudo install -o 1001 -g 0    -d ./data/mongodb
+sudo install -o 999  -g 999  -d ./data/mysql/lib
 
 if [ ! -e ".env" ]; then
     echo DOCKER_GID=$(stat -c '%g' /var/run/docker.sock) > .env
     echo MYSQL_ROOT_PASSWORD=$(openssl rand -base64 50 | tr -cd '[:alnum:]' | fold -w30 | head -n 1) >> .env
 fi
 
-echo 'please run ./host_certs as user now!'
+./hosts_certs
+
+echo -e "ready for \e[33mdocker-compose up -d\e[39m"

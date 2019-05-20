@@ -19,7 +19,7 @@ services:
       - "--innodb_flush_log_at_trx_commit=1"
       - "--innodb_flush_method=O_DIRECT"
     # https://www.percona.com/blog/2016/10/12/mysql-5-7-performance-tuning-immediately-after-installation/
-    environment: ["MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD?err}"]
+    environment: ["MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?please set mysql root password}"]
     volumes: ["./data/mysql/lib:/var/lib/mysql"]
     networks: ["mysql"]
     restart: unless-stopped
@@ -72,7 +72,7 @@ services:
       - ./nginx-dconf:/etc/nginx/nginx-dconf:ro
       - ./html:/html
     working_dir: /etc/nginx/
-    user: 101:${DOCKER_GID?err}
+    user: 101:${DOCKER_GID:?please run ./init first}
     restart: unless-stopped
     mem_limit: 200M
     memswap_limit: 250M
@@ -103,7 +103,7 @@ services:
 #     - PMA_ARBITRARY=1
       - PMA_HOST=mysql
       - PMA_USER=root
-      - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD?err}
+      - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD:?please set mysql root password}
     restart: unless-stopped
     volumes:
       - ./data/phpmyadmin/sessions:/sessions
