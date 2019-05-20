@@ -19,7 +19,6 @@ sudo install -o 101  -g $GID ./conf.d-dist/001-modsecurity.conf  ./conf.d/001-mo
 sudo install -o 101  -g $GID ./conf.d-dist/999-last.conf         ./conf.d/999-last.conf
 sudo install -o 101  -g $GID -d ./log
 sudo install -o 101  -g $GID -d ./html
-sudo install -o 1001 -g 0    -d ./data/mongodb
 sudo install -o 999  -g 999  -d ./data/mysql/lib
 
 if [ ! -e ".env" ]; then
@@ -28,5 +27,7 @@ if [ ! -e ".env" ]; then
 fi
 
 ./hosts_certs
+
+chmod +r ./certs/hosts-key.pem
 
 echo -e "ready for \e[33mdocker-compose up -d\e[39m"

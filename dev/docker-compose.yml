@@ -114,10 +114,48 @@ services:
     image: percona/percona-server-mongodb:3.6
     restart: unless-stopped
     # (case sensitive) engine: mmapv1, rocksdb, wiredTiger, inMemory
-    command: --storageEngine=inMemory
+    command: --storageEngine=inMemory --setParameter diagnosticDataCollectionEnabled=false
     environment:
       - MONGO_INITDB_DATABASE=xhprof
     volumes:
       - ./xhgui.js:/docker-entrypoint-initdb.d/xhgui.js:ro
-      - ./data/mongodb:/data/db # 1001
+    tmpfs:
+      - /data/db:mode=700,size=100k,uid=1001,gid=0
     networks: ["proxy"]
+
+  xhgui:
+    image: webvariants/php:7.3
+    restart: unless-stopped
+    depends_on:
+        - mongo-xh
+    tmpfs:
+      - /xhgui/cache:mode=770,size=500k,uid=33,gid=33
+      - /xhgui/data:mode=770,size=100k,uid=33,gid=33
+    volumes:
+      - ./xhgui_index_cap.php:/start/index_cap.php:ro
+    networks:
+      - proxy
+      - default
+    mem_limit: 200m
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    user: www-data:www-data
+    working_dir: /xhgui
+    environment:
+      PHP_IMAGE_VERSION: "2"
+      WEB_ROOT: "/xhgui/webroot"
+      APP_DATA: "/xhgui/data"
+      XHGUI_CACHE: "/xhgui/cache"
+      PHP_OPCACHE_INI: "1"
+      PHP_OPCACHE_INI_FAST_SHUTDOWN: "1"
+      PHPINI_OPCACHE__VALIDATE_TIMESTAMPS: 0
+      START_SCRIPT_DIR: /start
+      XHGUI_INDEX_CAP: 104857600 # 100 MB
+    labels: ["traefik.port=80", "traefik.enable=true", "traefik.docker.network=proxy"]
+    logging:
+      driver: json-file
+      options:
+        max-file: '3'
+        max-size: 512k
