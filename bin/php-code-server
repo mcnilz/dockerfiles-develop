@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+pushd "$PWD"
+
+cd "$(dirname ${BASH_SOURCE[0]})/../php-code-server"
+
+docker build --force-rm --tag php-code-server .
+
+popd
+
+exec docker run \
+	-p 127.0.0.1:8443:8443 \
+	--rm \
+	-it \
+	-h "$(basename $PWD)" \
+	--name "code-server-$(basename $PWD)" \
+	--network proxy \
+	-v "/etc/passwd:/etc/passwd:ro" \
+	-v "/etc/group:/etc/group:ro" \
+	-v "$HOME:$HOME" \
+	-u "$(id -u):$(id -g)" \
+	-w "$PWD" \
+	php-code-server --allow-http --no-auth
