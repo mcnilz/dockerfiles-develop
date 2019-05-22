@@ -2,6 +2,12 @@
 
 export DOCKER_COMPOSE_TEMPLATE_PATH="$(dirname $(realpath "${BASH_SOURCE[0]}"))"
 export DOCKER_COMPOSE_PROJECT_NAME=`basename "$PWD"`
+export DUMB_INIT_BIN="$DOCKER_COMPOSE_TEMPLATE_PATH/dumb-init"
+
+if [ ! -e "$DUMB_INIT_BIN" ]; then
+    wget -O "$DUMB_INIT_BIN" https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64
+    chmod +x "$DUMB_INIT_BIN"
+fi
 
 BACKGROUND=
 if [ "$1" == "-d" ]; then
@@ -42,7 +48,13 @@ if [ -n "$BACKGROUND" ]; then
 fi
 
 if [ -z "$4" ]; then
-	exec docker-compose --file "$DOCKER_COMPOSE_TEMPLATE_PATH/docker-compose.$TEMPLATE.yml" --project-directory "$PWD" --project-name "$DOCKER_COMPOSE_PROJECT_NAME" run -T --rm main
+	docker-compose --file "$DOCKER_COMPOSE_TEMPLATE_PATH/docker-compose.$TEMPLATE.yml" --project-directory "$PWD" --project-name "$DOCKER_COMPOSE_PROJECT_NAME" run -T --rm main
+    exitcode=$?
+    if [ $exitcode -ne 0 ]; then
+        docker-compose --file "$DOCKER_COMPOSE_TEMPLATE_PATH/docker-compose.$TEMPLATE.yml" --project-directory "$PWD" --project-name "$DOCKER_COMPOSE_PROJECT_NAME" down
+        exit $exitcode
+    fi
+    exit
 fi
 
 exec docker-compose --file "$DOCKER_COMPOSE_TEMPLATE_PATH/docker-compose.$TEMPLATE.yml" --project-directory "$PWD" --project-name "$DOCKER_COMPOSE_PROJECT_NAME" run -u $USER_UID --rm main "${@:4}"

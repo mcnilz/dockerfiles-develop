@@ -14,10 +14,13 @@ services:
     image: httpd:2.4-alpine
     volumes:
       - "${DOCKER_COMPOSE_TEMPLATE_PATH}/docker-compose.php-fpm.httpd.conf:/usr/local/apache2/conf/httpd.conf:ro"
+      - "$DUMB_INIT_BIN:/usr/local/bin/dumb-init:ro"
       - "$WEB_ROOT:/app"
     networks:
       - proxy
       - default
+    entrypoint: ["/usr/local/bin/dumb-init","--rewrite","28:0", "--"]
+    command: ["httpd-foreground"]
     depends_on:
       - php
     labels:

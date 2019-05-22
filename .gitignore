@@ -19,3 +19,4 @@ dev/.env
 /netdata/cache/
 /netdata/lib-agent/
 /netdata/cache-agent/
+/bin/dumb-init
