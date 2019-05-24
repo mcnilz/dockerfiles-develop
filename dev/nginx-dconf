@@ -69,11 +69,11 @@ server {
 	location / {
 		access_log /var/log/nginx/access.log vcombined;
 		include include/headers-public-vhost.conf;
-		modsecurity on;
-		modsecurity_rules '
-			SecRuleEngine On
-			SecRuleRemoveById 911100 949110 941100 941130 941160 941170
-		';
+		#modsecurity on;
+		#modsecurity_rules '
+		#	SecRuleEngine On
+		#	SecRuleRemoveById 911100 949110 941100 941130 941160 941170
+		#';
 		proxy_http_version 1.1;
 		proxy_buffering off;
 		proxy_set_header Host \$http_host;
@@ -100,11 +100,11 @@ server {
 	ssl_certificate_key /etc/nginx/certs/hosts-key.pem;
 	location / {
 		include include/headers-public-vhost.conf;
-		modsecurity on;
-		modsecurity_rules '
-			SecRuleEngine On
-			SecRuleRemoveById 911100 949110 941100 941130 941160 941170
-		';
+		#modsecurity on;
+		#modsecurity_rules '
+		#	SecRuleEngine On
+		#	SecRuleRemoveById 911100 949110 941100 941130 941160 941170
+		#';
 		proxy_http_version 1.1;
 		proxy_buffering off;
 		proxy_set_header Host \$http_host;

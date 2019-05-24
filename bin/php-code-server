@@ -17,6 +17,7 @@ exec docker run \
 	--network proxy \
 	-v "/etc/passwd:/etc/passwd:ro" \
 	-v "/etc/group:/etc/group:ro" \
+	-v "/var/run/docker.sock:/var/run/docker.sock:ro" \
 	-v "$HOME:$HOME" \
 	-u "$(id -u):$(id -g)" \
 	-w "$PWD" \
