@@ -1,6 +1,7 @@
 #!/bin/bash
 
 CONF_DIR="./conf.d"
+NGINX_CONTAINER=dev_nginx_1
 
 if [ -z "$CONF_DIR" ] || [ ! -d "$CONF_DIR" ]; then
 	echo "missing conf dir"
@@ -8,7 +9,13 @@ if [ -z "$CONF_DIR" ] || [ ! -d "$CONF_DIR" ]; then
 fi
 
 function ip {
-	docker inspect --format='{{range $i, $e := .NetworkSettings.Networks}}{{ $i }}:{{ $e.IPAddress }}{{"\n"}}{{end}}' $1 | grep -E "^(proxy:)|(traefik:)" | cut -d: -f2 | head -n 1
+	if [ -z "$2" ]; then
+		NET="^$(docker inspect --format='{{range $i, $e := .NetworkSettings.Networks}}({{ $i }}:)|{{end}}' $NGINX_CONTAINER)"
+		NET=${NET%?}
+	else
+		NET="^($2:)"
+	fi
+	docker inspect --format='{{range $i, $e := .NetworkSettings.Networks}}{{ $i }}:{{ $e.IPAddress }}{{"\n"}}{{end}}' $1 | grep -E "$NET" | cut -d: -f2 | head -n 1
 }
 
 function name {
@@ -23,46 +30,57 @@ function label {
 
 function config {
 	NAME=$(name $1)
-	IP=$(ip $1)
+	NETWORK=$(label traefik.docker.network $1)
+	IP=$(ip $1 $NETWORK)
 	ENABLE=$(label traefik.enable $1)
 	PORT=$(label traefik.port $1)
 	if [ -z "$PORT" ]; then
 		PORT=80
 	fi
-	# NETWORK=$(label traefik.docker.network $1)
 	RULE=$(label traefik.frontend.rule $1)
 
 	echo
-	echo $NAME $IP $ENABLE $PORT $RULE
+	echo $NAME $ENABLE $IP:$PORT $RULE $NETWORK
 	SERVER=
 
-	if [ -n "$IP" ]; then
-		if [[ $RULE == Host:* ]]; then
-			X=${RULE:5}
-			SERVER=${X//[,]/ }
+	if [ "$ENABLE" = "false" ]; then
+		echo "skip"
+		echo "<li><strong>$NAME not enabled</strong></li>" >> /html/index.html
+		return
+	fi
+
+	if [ -z "$IP" ]; then
+		echo "no ip"
+		echo "<li><strong>$NAME missing IP, not connected to proxy network</strong></li>" >> /html/index.html
+		return
+	fi
+
+	if [[ $RULE == Host:* ]]; then
+		X=${RULE:5}
+		SERVER=${X//[,]/ }
+	fi
+
+	if [ -z "$SERVER" ]; then
+		PROJECT=$(label com.docker.compose.project $1)
+		SERVICE=$(label com.docker.compose.service $1)
+		if [ -z "$SERVICE" ]; then
+			SERVER="$NAME.docker.localhost"
+		else
+			SERVER="$SERVICE.$PROJECT.docker.localhost"
 		fi
+	fi
 
-		if [ -z "$SERVER" ]; then
-			PROJECT=$(label com.docker.compose.project $1)
-			SERVICE=$(label com.docker.compose.service $1)
-			if [ -z "$SERVICE" ]; then
-				SERVER="$NAME.docker.localhost"
-			else
-				SERVER="$SERVICE.$PROJECT.docker.localhost"
-			fi
-		fi
+	echo "http://$SERVER"
 
-		echo $SERVER
+	echo "<li><strong>$NAME</strong><br />" >> /html/index.html
+	for X in $SERVER; do
+		echo "<a href=\"http://$X\">http://$X</a> <a href=\"https://$X\">https://$X</a><br />"  >> /html/index.html
+	done;
+	echo '</li>' >> /html/index.html
 
-		echo "<li><strong>$NAME</strong><br />" >> /html/index.html
-		for X in $SERVER; do
-			echo "<a href=\"http://$X\">http://$X</a> <a href=\"https://$X\">https://$X</a><br />"  >> /html/index.html
-		done;
-		echo '</li>' >> /html/index.html
+	FIRST_SERVER=$(echo $SERVER | cut -d' ' -f1)
 
-		FIRST_SERVER=$(echo $SERVER | cut -d' ' -f1)
-
-		cat << EOF > "$CONF_DIR/100-$FIRST_SERVER.nginx-dconf.conf"
+	cat << EOF > "$CONF_DIR/100-$FIRST_SERVER.nginx-dconf.conf"
 server {
 	listen 80;
 	server_name $SERVER;
@@ -124,8 +142,7 @@ server {
 	}
 }
 EOF
-		echo "$CONF_DIR/100-$FIRST_SERVER.nginx-dconf.conf written."
-	fi
+	echo "$CONF_DIR/100-$FIRST_SERVER.nginx-dconf.conf written."
 }
 
 function listen {
@@ -134,7 +151,7 @@ function listen {
 	# RUNNING=$(docker inspect -f '{{json .State.Running }}' $ID 2> /dev/null)
 	# if [ "$RUNNING" == "true" ]; then
 	# 	config $ID
-	# 	docker kill -s HUP dev_nginx_1
+	# 	docker kill -s HUP $NGINX_CONTAINER
 	# fi
 	start
 	done < <(docker events --filter "event=start" --filter "event=stop" --filter "label=traefik.port")
@@ -148,7 +165,7 @@ function start {
 		config $ID
 	done
 
-	docker kill -s HUP dev_nginx_1
+	docker kill -s HUP $NGINX_CONTAINER
 
 	echo '</ul></body></html>' >> /html/index.html
 }

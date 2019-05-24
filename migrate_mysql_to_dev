@@ -1,0 +1,35 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+pwd
+
+VOLUME=$(docker volume inspect --format='{{ .Mountpoint }}' mysql-data)
+
+if [ -z "$VOLUME" ]; then
+    echo "mysql-data data volume does not exist!"
+    exit
+fi
+
+echo "Volume: $VOLUME"
+
+TARGET=./dev/data/mysql/lib
+
+if [ -e "$TARGET" ]; then
+    echo "Target $TARGET already exists!"
+    exit
+fi
+
+docker stop mysql
+
+docker rm mysql
+
+mkdir -p ./dev/data/mysql
+
+sudo mv "$VOLUME" "$TARGET"
+
+docker volume rm mysql-data
+
+docker stop traefik
+
+docker rm traefik

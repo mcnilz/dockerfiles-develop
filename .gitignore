@@ -1,10 +1,10 @@
 *~
-sentry/sentry.env
-lynis/lynis/
-mysql/mysql.env
-portainer/data/
-dev/data/
-dev/.env
+/mysql/mysql.env
+/portainer/data/
+/dev/data/
+/dev/.env
+/dev/*.sql
+/dev/*.sql.gz
 /dev/certs/
 /dev/bin/mkcert
 /dev/conf.d/
