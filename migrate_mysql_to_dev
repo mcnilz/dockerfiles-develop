@@ -33,3 +33,5 @@ docker volume rm mysql-data
 docker stop traefik
 
 docker rm traefik
+
+echo 'YOU MAY NEED TO RUN "docker-compose exec mysql mysql_upgrade -u root -p" ON THE DEV STACK'
