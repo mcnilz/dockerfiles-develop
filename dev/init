@@ -20,6 +20,7 @@ sudo install -o 101  -g $GID ./conf.d-dist/999-last.conf         ./conf.d/999-la
 sudo install -o 101  -g $GID -d ./log
 sudo install -o 101  -g $GID -d ./html
 sudo install -o 999  -g 999  -d ./data/mysql/lib
+sudo install -o 999  -g 999  -d ./data/mysql80/lib
 
 if [ ! -e ".env" ]; then
     echo DOCKER_GID=$(stat -c '%g' /var/run/docker.sock) > .env

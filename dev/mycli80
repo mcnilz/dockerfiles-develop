@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 if [[ "$(docker images -q mycli 2> /dev/null)" == "" ]]; then
 	echo "FROM debian:9-slim
@@ -20,4 +20,4 @@ docker run \
 	-e LANG=C.UTF-8 \
 	--network mysql \
 	mycli \
-	-h mysql -u root -p$MYSQL_ROOT_PASSWORD $@
+	-h mysql80 -u root -p$MYSQL_ROOT_PASSWORD $@

@@ -17,5 +17,5 @@ docker run \
 	--link mysql \
 	-v "$FILE:/dump.sql" \
 	--network mysql \
-	mysql:5.7 \
-	/bin/bash -c "mysqldump -h mysql -u root -p$MYSQL_ROOT_PASSWORD ${2} > /dump.sql"
+	mysql:8.0 \
+	/bin/bash -c "mysqldump -h mysql80 -u root -p$MYSQL_ROOT_PASSWORD ${2} > /dump.sql"

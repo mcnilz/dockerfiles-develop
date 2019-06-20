@@ -7,5 +7,5 @@ docker run \
 	--read-only \
 	-ti \
 	--network mysql \
-	mysql:5.7 \
-	mysql -h mysql -u root -p$MYSQL_ROOT_PASSWORD $@
+	mysql:8.0 \
+	mysql -h mysql80 -u root -p$MYSQL_ROOT_PASSWORD $@
