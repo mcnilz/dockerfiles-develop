@@ -110,7 +110,10 @@ services:
     restart: unless-stopped
     mem_limit: 50M
     memswap_limit: 100M
-    networks: ["proxy"]
+    networks:
+      proxy:
+        aliases:
+          - maildev
 
   portainer:
     image: portainer/portainer
