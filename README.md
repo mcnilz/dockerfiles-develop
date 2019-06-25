@@ -25,11 +25,11 @@ nano .env # change mysql root password if you want
 ../bin/docker-compose up -d
 ```
 
-open http://localhost/
+Open http://localhost/ . You will see all detected services available through the load balancer.
 
 All hosts in `/etc/hosts` pointing to `127.0.0.1` will be added to the certificate. If you add new hosts to `/etc/hosts call` `./hosts_certs` to update the certificate.
 
-### usage on an local app stack
+### usage on a local app stack
 
 `docker-compose.yml`
 ```yaml
@@ -44,7 +44,7 @@ networks:
       name: mysql
 
 services:
-  som:
+  app:
     image: webvariants/php:7.3
     volumes:
       - "./:/app"
