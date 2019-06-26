@@ -5,20 +5,25 @@ if [ "$(id -u)" = "0" ]; then
   exit 1
 fi
 
-BIN="$(dirname $(realpath "${BASH_SOURCE[0]}"))/bin"
+WORK_DIR="$(dirname $(realpath "${BASH_SOURCE[0]}"))"
+BIN="$WORK_DIR/bin"
+HAVE_MKCERT=$(which mkcert >/dev/null 2>&1;echo $?)
+MKCERT_BIN="$BIN/mkcert"
 
-if [ ! -e "$BIN/mkcert" ]; then
+if [ $HAVE_MKCERT -eq 1 -a ! -e "$MKCERT_BIN" ]; then
   mkdir -p "$BIN"
-  curl -L "https://github.com/FiloSottile/mkcert/releases/download/v1.3.0/mkcert-v1.3.0-linux-amd64" -o "$BIN/mkcert"
-  chmod +x "$BIN/mkcert"
+  curl -L "https://github.com/FiloSottile/mkcert/releases/download/v1.3.0/mkcert-v1.3.0-linux-amd64" -o "$MKCERT_BIN"
+  chmod +x "$MKCERT_BIN"
+elif [ $HAVE_MKCERT -eq 0 ]; then
+  MKCERT_BIN=$(which mkcert)
 fi
 
-CERTS="$(dirname $(realpath "${BASH_SOURCE[0]}"))/certs"
+CERTS="$WORK_DIR/certs"
 
-NAMES=$(cat /etc/hosts | grep -P "^127.\d+.\d+.\d+\s+" | sed -E "s/^127\.[0-9.]+[ \t]+(.+)#.*/\1/" | tr "[:space:]" "\n" | sort -u | tr "\n" " ")
+NAMES=$(cat /etc/hosts | grep -E "^127\.[0-9.]+\.[0-9.]+\.[0-9.]+[ \t]+" | sed -E "s/^127\.[0-9.]+[ \t]+(.+)#.*/\1/" | tr "[:space:]" "\n" | sort -u | tr "\n" " ")
 
 mkdir -p "$CERTS"
 
-"$BIN/mkcert" -install
+"$MKCERT_BIN" -install
 
-"$BIN/mkcert" -cert-file="$CERTS/hosts.pem" -key-file="$CERTS/hosts-key.pem" $NAMES "localhost" "docker.localhost" "*.docker.localhost" "*.dev.docker.localhost"
+"$MKCERT_BIN" -cert-file="$CERTS/hosts.pem" -key-file="$CERTS/hosts-key.pem" $NAMES "localhost" "docker.localhost" "*.docker.localhost" "*.dev.docker.localhost"

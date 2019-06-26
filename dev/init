@@ -5,25 +5,45 @@ if [ "$(id -u)" = "0" ]; then
   exit 1
 fi
 
+function initLinux {
+    GID=$(id -g)
+
+    sudo install -o 101  -g $GID -d ./conf.d
+    sudo install -o 101  -g $GID ./conf.d-dist/000-default.conf      ./conf.d/000-default.conf
+    sudo install -o 101  -g $GID ./conf.d-dist/001-modsecurity.conf  ./conf.d/001-modsecurity.conf
+    sudo install -o 101  -g $GID ./conf.d-dist/999-last.conf         ./conf.d/999-last.conf
+    sudo install -o 101  -g $GID -d ./log
+    sudo install -o 101  -g $GID -d ./html
+    sudo install -o 999  -g 999  -d ./data/mysql/lib
+    sudo install -o 999  -g 999  -d ./data/mysql80/lib
+    sudo install -o 0    -g 0    -d ./data/portainer/data
+    sudo install -o 33   -g 33   -d ./data/phpmyadmin/sessions
+}
+
+function initMacOS {
+    mkdir -p conf.d log html data/{mysql,mysql80}/lib data/portainer/data data/phpmyadmin/sessions
+    cp ./conf.d-dist/000-default.conf      ./conf.d/000-default.conf
+    cp ./conf.d-dist/001-modsecurity.conf  ./conf.d/001-modsecurity.conf
+    cp ./conf.d-dist/999-last.conf         ./conf.d/999-last.conf
+}
+
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 if [ ! -e "dhparam.pem" ]; then
     ./generate-dhparam
 fi
 
-GID=$(id -g)
-
-sudo install -o 101  -g $GID -d ./conf.d
-sudo install -o 101  -g $GID ./conf.d-dist/000-default.conf      ./conf.d/000-default.conf
-sudo install -o 101  -g $GID ./conf.d-dist/001-modsecurity.conf  ./conf.d/001-modsecurity.conf
-sudo install -o 101  -g $GID ./conf.d-dist/999-last.conf         ./conf.d/999-last.conf
-sudo install -o 101  -g $GID -d ./log
-sudo install -o 101  -g $GID -d ./html
-sudo install -o 999  -g 999  -d ./data/mysql/lib
-sudo install -o 999  -g 999  -d ./data/mysql80/lib
+case "$OSTYPE" in
+  solaris*) echo "SOLARIS is not supported!"; exit 0 ;;
+  darwin*)  STAT_OPT="-f"; initMacOS ;;
+  linux*)   STAT_OPT="-c"; initLinux ;;
+  bsd*)     echo "BSD is not supported!"; exit 0 ;;
+  msys*)    echo "WINDOWS is not supported!"; exit 0 ;;
+  *)        echo "unknown: $OSTYPE"; exit 0 ;;
+esac
 
 if [ ! -e ".env" ]; then
-    echo DOCKER_GID=$(stat -c '%g' /var/run/docker.sock) > .env
+    echo DOCKER_GID=$(stat $STAT_OPT '%g' /var/run/docker.sock) > .env
     echo MYSQL_ROOT_PASSWORD=$(openssl rand -base64 50 | tr -cd '[:alnum:]' | fold -w30 | head -n 1) >> .env
 fi
 
@@ -31,4 +51,4 @@ fi
 
 chmod +r ./certs/hosts-key.pem
 
-echo -e "ready for \e[33mdocker-compose up -d\e[39m"
+echo -e "ready for \033[33mdocker-compose up -d\033[0m"
