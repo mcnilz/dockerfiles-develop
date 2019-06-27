@@ -27,8 +27,8 @@ services:
           - mysql57
     restart: unless-stopped
     labels: ["traefik.enable=false"]
-    mem_limit: 500M
-    memswap_limit: 600M
+    mem_limit: 1G
+    memswap_limit: 1100M
     ports: ["127.0.0.1:3306:3306"]
 
   mysql80:
@@ -98,6 +98,7 @@ services:
       - ./conf.d/:/etc/nginx/conf.d/
       - ./nginx-dconf:/etc/nginx/nginx-dconf:ro
       - ./html:/html
+      - ./hosts.export/:/hosts.export/
     working_dir: /etc/nginx/
     user: 101:${DOCKER_GID:?please run ./init first}
     restart: unless-stopped
