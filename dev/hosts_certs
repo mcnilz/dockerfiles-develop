@@ -19,8 +19,13 @@ elif [ $HAVE_MKCERT -eq 0 ]; then
 fi
 
 CERTS="$WORK_DIR/certs"
+HOST_FILES="/etc/hosts"
 
-NAMES=$(cat /etc/hosts | grep -E "^127\.[0-9.]+\.[0-9.]+\.[0-9.]+[ \t]+" | sed -E "s/^127\.[0-9.]+[ \t]+(.+)#.*/\1/" | tr "[:space:]" "\n" | sort -u | tr "\n" " ")
+if [ -f ./hosts.export/hosts ]; then
+    HOST_FILES="./hosts.export/hosts $HOST_FILES"
+fi
+
+NAMES=$(cat $HOST_FILES | grep -E "^127\.[0-9.]+\.[0-9.]+\.[0-9.]+[ \t]+" | sed -E "s/^127\.[0-9.]+[ \t]+(.+)#.*/\1/" | tr "[:space:]" "\n" | sort -u | tr "\n" " ")
 
 mkdir -p "$CERTS"
 

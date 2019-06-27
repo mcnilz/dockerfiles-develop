@@ -14,6 +14,7 @@ function initLinux {
     sudo install -o 101  -g $GID ./conf.d-dist/999-last.conf         ./conf.d/999-last.conf
     sudo install -o 101  -g $GID -d ./log
     sudo install -o 101  -g $GID -d ./html
+    sudo install -o 101  -g $GID -d ./hosts.export/
     sudo install -o 999  -g 999  -d ./data/mysql/lib
     sudo install -o 999  -g 999  -d ./data/mysql80/lib
     sudo install -o 0    -g 0    -d ./data/portainer/data
@@ -21,7 +22,7 @@ function initLinux {
 }
 
 function initMacOS {
-    mkdir -p conf.d log html data/{mysql,mysql80}/lib data/portainer/data data/phpmyadmin/sessions
+    mkdir -p ./conf.d ./log ./html ./data/mysql/lib ./data/mysql80/lib ./data/portainer/data ./data/phpmyadmin/sessions ./hosts.export/
     cp ./conf.d-dist/000-default.conf      ./conf.d/000-default.conf
     cp ./conf.d-dist/001-modsecurity.conf  ./conf.d/001-modsecurity.conf
     cp ./conf.d-dist/999-last.conf         ./conf.d/999-last.conf
