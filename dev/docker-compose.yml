@@ -27,9 +27,9 @@ services:
           - mysql57
     restart: unless-stopped
     labels: ["traefik.enable=false"]
-    mem_limit: 500M
-    memswap_limit: 600M
-    ports: ["127.0.0.1:3306:3306", "::1:3306:3306"]
+    mem_limit: 1G
+    memswap_limit: 1100M
+    ports: ["127.0.0.1:3306:3306"]
 
   mysql80:
     image: mysql:8.0
@@ -53,7 +53,7 @@ services:
     labels: ["traefik.enable=false"]
     mem_limit: 500M
     memswap_limit: 600M
-    ports: ["127.0.0.1:3308:3306", "::1:3308:3306"]
+    ports: ["127.0.0.1:3308:3306"]
 
   # traefik:
   #   image: traefik
@@ -63,7 +63,7 @@ services:
   #     - "./certs/:/certs/:ro" # run ./hosts_certs to create certificates for /etc/hosts first!
   #     - type: tmpfs
   #       target: /tmp
-  #   ports: ["127.0.0.1:8080:8080", "127.0.0.1:80:80", "127.0.0.1:443:443", "::1:8080:8080", "::1:80:80", "::1:443:443"]
+  #   ports: ["127.0.0.1:8080:8080", "127.0.0.1:80:80", "127.0.0.1:443:443"]
   #   networks: ["proxy", "traefik"]
   #   restart: unless-stopped
   #   mem_limit: 200M
@@ -79,7 +79,7 @@ services:
       - ./html:/html:ro
     tmpfs:
       - /tmp
-    ports: ["127.0.0.1:8080:8080", "127.0.0.1:80:80", "127.0.0.1:443:443", "::1:8080:8080", "::1:80:80", "::1:443:443"]
+    ports: ["127.0.0.1:8080:8080", "127.0.0.1:80:80", "127.0.0.1:443:443"]
     networks: ["proxy", "traefik"]
     restart: always
     cap_drop:
@@ -98,6 +98,7 @@ services:
       - ./conf.d/:/etc/nginx/conf.d/
       - ./nginx-dconf:/etc/nginx/nginx-dconf:ro
       - ./html:/html
+      - ./hosts.export/:/hosts.export/
     working_dir: /etc/nginx/
     user: 101:${DOCKER_GID:?please run ./init first}
     restart: unless-stopped

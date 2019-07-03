@@ -68,6 +68,8 @@ function config {
 		else
 			SERVER="$SERVICE.$PROJECT.docker.localhost"
 		fi
+	else
+        echo "127.0.0.1 $SERVER" >> /hosts.export/hosts
 	fi
 
 	echo "http://$SERVER"
@@ -86,7 +88,7 @@ server {
 	server_name $SERVER;
 	location / {
 		access_log /var/log/nginx/access.log vcombined;
-		include include/headers-public-vhost.conf;
+		#include include/headers-public-vhost.conf;
 		#modsecurity on;
 		#modsecurity_rules '
 		#	SecRuleEngine On
@@ -117,7 +119,7 @@ server {
 	ssl_certificate /etc/nginx/certs/hosts.pem;
 	ssl_certificate_key /etc/nginx/certs/hosts-key.pem;
 	location / {
-		include include/headers-public-vhost.conf;
+		#include include/headers-public-vhost.conf;
 		#modsecurity on;
 		#modsecurity_rules '
 		#	SecRuleEngine On
@@ -159,7 +161,7 @@ function listen {
 
 function start {
 	echo '<html><head><title>dev proxy</title></head><body><h1>Vhost not found</h1><ul>' > /html/index.html
-	rm -rf "$CONF_DIR"/100-*.nginx-dconf.conf
+	rm -rf "$CONF_DIR"/100-*.nginx-dconf.conf /hosts.export/*
 
 	for ID in $(docker ps --filter "label=traefik.port" -q); do
 		config $ID

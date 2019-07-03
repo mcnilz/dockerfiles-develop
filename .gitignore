@@ -20,3 +20,4 @@
 /netdata/lib-agent/
 /netdata/cache-agent/
 /bin/dumb-init
+/dev/hosts.export/
