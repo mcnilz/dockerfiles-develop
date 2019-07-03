@@ -12,7 +12,15 @@ MKCERT_BIN="$BIN/mkcert"
 
 if [ $HAVE_MKCERT -eq 1 -a ! -e "$MKCERT_BIN" ]; then
   mkdir -p "$BIN"
-  curl -L "https://github.com/FiloSottile/mkcert/releases/download/v1.3.0/mkcert-v1.3.0-linux-amd64" -o "$MKCERT_BIN"
+  case "$OSTYPE" in
+    solaris*) echo "SOLARIS is not supported!"; exit 1 ;;
+    darwin*)  MKCERT_FILE=mkcert-v1.3.0-darwin-amd64 ;;
+    linux*)   MKCERT_FILE=mkcert-v1.3.0-linux-amd64 ;;
+    bsd*)     echo "BSD is not supported!"; exit 1 ;;
+    msys*)    echo "WINDOWS is not supported!"; exit 1 ;;
+    *)        echo "unknown: $OSTYPE"; exit 1 ;;
+  esac
+  curl -L "https://github.com/FiloSottile/mkcert/releases/download/v1.3.0/$MKCERT_FILE" -o "$MKCERT_BIN"
   chmod +x "$MKCERT_BIN"
 elif [ $HAVE_MKCERT -eq 0 ]; then
   MKCERT_BIN=$(which mkcert)

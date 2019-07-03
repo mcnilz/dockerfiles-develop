@@ -35,16 +35,16 @@ if [ ! -e "dhparam.pem" ]; then
 fi
 
 case "$OSTYPE" in
-  solaris*) echo "SOLARIS is not supported!"; exit 0 ;;
+  solaris*) echo "SOLARIS is not supported!"; exit 1 ;;
   darwin*)  STAT_OPT="-f"; initMacOS ;;
   linux*)   STAT_OPT="-c"; initLinux ;;
-  bsd*)     echo "BSD is not supported!"; exit 0 ;;
-  msys*)    echo "WINDOWS is not supported!"; exit 0 ;;
-  *)        echo "unknown: $OSTYPE"; exit 0 ;;
+  bsd*)     echo "BSD is not supported!"; exit 1 ;;
+  msys*)    echo "WINDOWS is not supported!"; exit 1 ;;
+  *)        echo "unknown: $OSTYPE"; exit 1 ;;
 esac
 
 if [ ! -e ".env" ]; then
-    echo DOCKER_GID=$(stat $STAT_OPT '%g' /var/run/docker.sock) > .env
+    echo DOCKER_GID=0 > .env # $(stat $STAT_OPT '%g' /var/run/docker.sock)
     echo MYSQL_ROOT_PASSWORD=$(openssl rand -base64 50 | tr -cd '[:alnum:]' | fold -w30 | head -n 1) >> .env
 fi
 
