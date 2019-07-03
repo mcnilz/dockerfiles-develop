@@ -1,6 +1,4 @@
-# dockerfiles-develop
-
-## dev stack
+# docker based dev stack
 
 Base tools for (php) web development
 
@@ -13,7 +11,7 @@ Base tools for (php) web development
 - xhgui + mongodb (php)
 - mkcert
 
-### install
+## install
 
 Stop any old services on port 80, 443, 3306, 3308.
 
@@ -27,9 +25,9 @@ nano .env # change mysql root password if you want
 
 Open http://localhost/ . You will see all detected services available through the load balancer.
 
-All hosts in `/etc/hosts` pointing to `127.0.0.1` will be added to the certificate. If you add new hosts to `/etc/hosts call` `./hosts_certs` to update the certificate.
+All hosts in `/etc/hosts` pointing to `127.0.0.1` will be added to the certificate. If you add new hosts to `/etc/hosts` call `./hosts_certs` to update the certificate.
 
-### usage on a local app stack
+## usage on a local app stack
 
 `docker-compose.yml`
 ```yaml
