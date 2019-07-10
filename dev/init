@@ -19,6 +19,19 @@ function initLinux {
     sudo install -o 999  -g 999  -d ./data/mysql80/lib
     sudo install -o 0    -g 0    -d ./data/portainer/data
     sudo install -o 33   -g 33   -d ./data/phpmyadmin/sessions
+
+    # mkcert dependency
+    . /etc/os-release
+    case "$ID" in
+      debian)
+        sudo apt install -y libnss3-tools
+      ;;
+      ubuntu)
+        sudo apt install -y libnss3-tools
+      ;;
+    esac
+
+    DOCKER_GID=$(stat $STAT_OPT '%g' /var/run/docker.sock)
 }
 
 function initMacOS {
@@ -26,6 +39,8 @@ function initMacOS {
     cp ./conf.d-dist/000-default.conf      ./conf.d/000-default.conf
     cp ./conf.d-dist/001-modsecurity.conf  ./conf.d/001-modsecurity.conf
     cp ./conf.d-dist/999-last.conf         ./conf.d/999-last.conf
+
+    DOCKER_GID=0
 }
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -44,7 +59,7 @@ case "$OSTYPE" in
 esac
 
 if [ ! -e ".env" ]; then
-    echo DOCKER_GID=0 > .env # $(stat $STAT_OPT '%g' /var/run/docker.sock)
+    echo DOCKER_GID=$DOCKER_GID > .env
     echo MYSQL_ROOT_PASSWORD=$(openssl rand -base64 50 | tr -cd '[:alnum:]' | fold -w30 | head -n 1) >> .env
 fi
 
