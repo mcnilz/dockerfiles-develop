@@ -99,6 +99,8 @@ services:
       - ./nginx-dconf:/etc/nginx/nginx-dconf:ro
       - ./html:/html
       - ./hosts.export/:/hosts.export/
+    tmpfs:
+      - /tmp
     working_dir: /etc/nginx/
     user: 101:${DOCKER_GID:?please run ./init first}
     restart: unless-stopped

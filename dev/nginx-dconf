@@ -147,6 +147,29 @@ EOF
 	echo "$CONF_DIR/100-$FIRST_SERVER.nginx-dconf.conf written."
 }
 
+
+function debounce {
+  if [[ ! -f /tmp/dconf_debounce_executing ]]
+  then
+    touch /tmp/dconf_debounce_executing
+    "$@"
+    retVal=$?
+    {
+      sleep 3
+      if [[ -f /tmp/dconf_debounce_on-finish ]]
+      then
+        "$@"
+        rm -f /tmp/dconf_debounce_on-finish
+      fi
+      rm -f /tmp/dconf_debounce_executing
+    } &
+    return $retVal
+  elif [[ ! -f /tmp/dconf_debounce_on-finish ]]
+  then
+    touch /tmp/dconf_debounce_on-finish
+  fi
+}
+
 function listen {
 	while read line ; do
 	# ID=$(echo $line | cut -d' ' -f 4)
@@ -155,7 +178,7 @@ function listen {
 	# 	config $ID
 	# 	docker kill -s HUP $NGINX_CONTAINER
 	# fi
-	start
+	debounce start
 	done < <(docker events --filter "event=start" --filter "event=stop" --filter "label=traefik.port")
 }
 
