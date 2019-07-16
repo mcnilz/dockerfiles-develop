@@ -1,8 +1,0 @@
-#!/bin/bash
-
-docker run \
-	--rm \
-	--read-only \
-	--link mysql \
-	mysql:5.6 \
-	/bin/bash -c "mysqldump -h mysql -u root -p\${MYSQL_ENV_MYSQL_ROOT_PASSWORD} ${1} | mysql -h mysql -u root -p\${MYSQL_ENV_MYSQL_ROOT_PASSWORD} ${2}"
