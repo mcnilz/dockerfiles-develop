@@ -70,3 +70,5 @@ docker-compose up -d
 ```
 
 open http://demo.docker.localhost/
+
+more example stacks [here](compose-templates)
