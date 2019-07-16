@@ -1,0 +1,11 @@
+#!/bin/bash -e
+
+for TAG in $(curl -s -S 'https://registry.hub.docker.com/v2/repositories/webvariants/php/tags/' | jq -r '."results"[]["name"]'); do
+    IMAGE="webvariants/php:$TAG"
+    echo "Image: $IMAGE"
+    if [[ -n "$(docker images -q $IMAGE 2> /dev/null)" ]]; then
+        docker pull $IMAGE
+    else
+        echo "skip"
+    fi
+done
