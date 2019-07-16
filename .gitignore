@@ -21,3 +21,5 @@
 /netdata/cache-agent/
 /bin/dumb-init
 /dev/hosts.export/
+/compose-templates/*/.env
+/compose-templates/*/data/

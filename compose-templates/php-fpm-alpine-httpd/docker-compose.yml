@@ -1,0 +1,69 @@
+version: '2.1'
+
+networks:
+  mysql:
+    external:
+      name: mysql
+
+  proxy:
+    external:
+      name: proxy
+
+services:
+  main:
+    image: httpd:2.4-alpine
+    volumes:
+      - "./httpd.conf:/usr/local/apache2/conf/httpd.conf:ro"
+      - "./dumb-init:/usr/local/bin/dumb-init:ro"
+      - "./:/app"
+    networks:
+      - proxy
+      - default
+    entrypoint: ["/usr/local/bin/dumb-init","--rewrite","28:0", "--"]
+    command: ["httpd-foreground"]
+    depends_on:
+      - php
+    labels:
+      - traefik.enable=true
+      - traefik.port=80
+      - traefik.frontend.rule=Host:${HOST:-php-fpm-alpine-httpd.docker.localhost}
+      - traefik.docker.network=proxy
+
+  php:
+    image: webvariants/php:${VERSION:-7.3}-fpm-alpine
+    volumes:
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+      - "./:/app"
+    networks:
+      - default
+      - mysql
+      - proxy # to access mongo-xh
+    working_dir: "/app"
+    user: "${USER_UID:?please run echo USER_UID=$(id -u) >> .env}:${USER_GID:?please run echo USER_GID=$(id -g) >> .env}"
+    environment:
+      PHP_IMAGE_VERSION: "2"
+      WEB_ROOT: "/app"
+      APP_DATA: "/app/data"
+
+      PHPINI_OPCACHE__REVALIDATE_FREQ: 2
+
+      # SecRuleEngine: "On"
+      # SecExclude: "SecRuleRemoveById 980130 949110"
+
+      PHP_ZEND_EXTENSIONS: "xdebug.so"
+
+      # PHPINI_XDEBUG__REMOTE_ENABLE: "1"
+      # PHPINI_XDEBUG__REMOTE_CONNECT_BACK: "1"
+      # PHPINI_XDEBUG__REMOTE_PORT: "9000"
+      # PHPINI_XDEBUG__REMOTE_HANDLER: "dbgp"
+      # PHPINI_XDEBUG__REMOTE_MODE: "req"
+      # PHPINI_XDEBUG__REMOTE_AUTOSTART: "true"
+
+      # PHPINI_XDEBUG__PROFILER_OUTPUT_DIR: "$WEB_ROOT/data"
+      # PHPINI_XDEBUG__PROFILER_ENABLE: 0
+      # PHPINI_XDEBUG__PROFILER_ENABLE_TRIGGER: 1
+
+      # PHPINI_AUTO_PREPEND_FILE: "/xhgui/header.php"
+      # XHGUI_PROBABILITY: 100
+      # XHGUI_FULL_PROFILING:

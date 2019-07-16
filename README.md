@@ -60,10 +60,7 @@ services:
     user: "${USER_UID:?please run echo USER_UID=$(id -u) >> .env}:${USER_GID:?please run echo USER_GID=$(id -g) >> .env}"
     environment:
       PHP_IMAGE_VERSION: 2
-      WEB_PORT: 80
       WEB_ROOT: "/app"
-      WWW_USER: "${WWW_USER:?please run echo WWW_USER=$(id -un) >> .env}"
-      WWW_GROUP: "${WWW_GROUP:?please run echo WWW_GROUP=$(id -gn) >> .env}"
 ```
 
 ```bash
