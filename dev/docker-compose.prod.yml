@@ -1,0 +1,59 @@
+version: "2.3"
+
+services:
+
+  nginx:
+    volumes:
+      - ./acme.sh/:/etc/ssl/acme.sh/
+
+  nginx-dconf:
+    volumes:
+      - ./acme.sh/:/etc/ssl/acme.sh/
+    environment:
+      - DCONF_ACME_SH_DIR=/etc/ssl/acme.sh
+      - SIGNAL_CONTAINER=${SIGNAL_CONTAINER:-proxy_nginx_1}
+
+  cron-acme:
+    image: webvariants/nginx-acme-and-more
+    build: .
+    restart: always
+    depends_on:
+      - nginx
+    command: cron-acme
+    volumes:
+      - ./acme.sh/:/etc/ssl/acme.sh/
+      - ./html/:/usr/share/nginx/html/
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - ACME_CRON=${ACME_CRON-27 10 * * 1-4}
+      - SIGNAL_CONTAINER=${SIGNAL_CONTAINER:-proxy_nginx_1}
+    user: nginx:${DOCKER_GID-999}
+    read_only: true
+    tmpfs:
+      - /tmp
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-file: '3'
+        max-size: 512k
+
+  cron-rotate-log:
+    image: webvariants/nginx-acme-and-more
+    restart: always
+    depends_on:
+      - nginx
+    command: cron-rotate-log
+    volumes:
+      - ./log/:/var/log/nginx
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - SIGNAL_CONTAINER=${SIGNAL_CONTAINER:-proxy_nginx_1}
+    user: nginx:${DOCKER_GID-999}
+    read_only: true
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-file: '3'
+        max-size: 512k

@@ -1,7 +1,11 @@
 #!/bin/bash
 
 CONF_DIR="./conf.d"
-NGINX_CONTAINER=dev_nginx_1
+if [ -z "$SIGNAL_CONTAINER" ]; then
+	NGINX_CONTAINER=dev_nginx_1
+else
+	NGINX_CONTAINER="$SIGNAL_CONTAINER"
+fi
 
 if [ -z "$CONF_DIR" ] || [ ! -d "$CONF_DIR" ]; then
 	echo "missing conf dir"
@@ -38,6 +42,7 @@ function config {
 		PORT=80
 	fi
 	RULE=$(label traefik.frontend.rule $1)
+	CERT_ACME_SH=$(label dconf.cert.acme.sh $1)
 
 	echo
 	echo $NAME $ENABLE $IP:$PORT $RULE $NETWORK
@@ -82,6 +87,15 @@ function config {
 
 	FIRST_SERVER=$(echo $SERVER | cut -d' ' -f1)
 
+	SSL="ssl_certificate /etc/nginx/certs/hosts.pem; ssl_certificate_key /etc/nginx/certs/hosts-key.pem; "
+	if [ -n "$DCONF_ACME_SH_DIR" ] && [ -n "$CERT_ACME_SH" ]; then
+		if [ -e "$DCONF_ACME_SH_DIR/$CERT_ACME_SH/fullchain.cer" ] && [ -e "$DCONF_ACME_SH_DIR/$CERT_ACME_SH/$CERT_ACME_SH.key" ]; then
+			SSL="ssl_certificate '$DCONF_ACME_SH_DIR/$CERT_ACME_SH/fullchain.cer'; ssl_certificate_key '$DCONF_ACME_SH_DIR/$CERT_ACME_SH/$CERT_ACME_SH.key'; "
+		else
+			echo "ERROR: Certificate $CERT_ACME_SH not found!"
+		fi
+	fi
+
 	cat << EOF > "$CONF_DIR/100-$FIRST_SERVER.nginx-dconf.conf"
 server {
 	listen 80;
@@ -116,8 +130,7 @@ server {
 	listen 443 ssl http2;
 	server_name $SERVER;
 	access_log /var/log/nginx/access.log vcombined;
-	ssl_certificate /etc/nginx/certs/hosts.pem;
-	ssl_certificate_key /etc/nginx/certs/hosts-key.pem;
+	$SSL
 	location / {
 		#include include/headers-public-vhost.conf;
 		#modsecurity on;

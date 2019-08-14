@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+ln -s docker-compose.prod.yml docker-compose.override.yml || true
+
+install -o 101 -g 101 -d ./acme.sh
+
+if ! grep -q SIGNAL_CONTAINER .env; then
+  echo -e "\nSIGNAL_CONTAINER=$(basename $PWD)_nginx_1" >> .env
+fi

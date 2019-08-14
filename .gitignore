@@ -11,6 +11,7 @@
 /dev/log/
 /dev/html/
 /dev/dhparam.pem
+/dev/docker-compose.override.yml
 /mongo/dump/
 /mysql/*.sql
 /mysql/*.sql.gz
