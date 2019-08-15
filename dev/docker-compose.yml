@@ -73,6 +73,7 @@ services:
     image: webvariants/nginx-acme-and-more
     volumes:
       - ./conf.d/:/etc/nginx/conf.d/:ro
+      - ./htpasswd/:/etc/nginx/htpasswd/:ro
       - ./certs/:/etc/nginx/certs/:ro
       - ./dhparam.pem:/etc/nginx/dhparam/dhparam.pem:ro
       - ./log:/var/log/nginx
@@ -96,6 +97,7 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - ./conf.d/:/etc/nginx/conf.d/
+      - ./htpasswd/:/etc/nginx/htpasswd/
       - ./nginx-dconf:/etc/nginx/nginx-dconf:ro
       - ./html:/html
       - ./hosts.export/:/hosts.export/

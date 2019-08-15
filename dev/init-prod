@@ -2,10 +2,40 @@
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-ln -s docker-compose.prod.yml docker-compose.override.yml || true
+if [ "$(id -u)" = "0" ] && [ "$1" != "force" ]; then
+  echo "do not run as root!"
+  exit 1
+fi
 
-install -o 101 -g 101 -d ./acme.sh
+if [ ! -e "docker-compose.override.yml" ]; then
+  ln -s docker-compose.prod.yml docker-compose.override.yml
+fi
+
+sudo install -o 101 -g 101 -d ./acme.sh
 
 if ! grep -q SIGNAL_CONTAINER .env; then
   echo -e "\nSIGNAL_CONTAINER=$(basename $PWD)_nginx_1" >> .env
 fi
+
+if ! grep -q MAIL_AUTH_USERNAME .env; then
+  echo -e "\nMAIL_AUTH_USERNAME=mail" >> .env
+fi
+if ! grep -q MAIL_AUTH_PASSWORD .env; then
+  echo -e "\nMAIL_AUTH_PASSWORD=$(openssl rand -base64 50 | tr -cd '[:alnum:]' | fold -w30 | head -n 1)" >> .env
+fi
+
+if ! grep -q PHPMYADMIN_AUTH_USERNAME .env; then
+  echo -e "\nPHPMYADMIN_AUTH_USERNAME=phpmyadmin" >> .env
+fi
+if ! grep -q PHPMYADMIN_AUTH_PASSWORD .env; then
+  echo -e "\nPHPMYADMIN_AUTH_PASSWORD=$(openssl rand -base64 50 | tr -cd '[:alnum:]' | fold -w30 | head -n 1)" >> .env
+fi
+
+if ! grep -q XHGUI_AUTH_USERNAME .env; then
+  echo -e "\nXHGUI_AUTH_USERNAME=xhgui" >> .env
+fi
+if ! grep -q XHGUI_AUTH_PASSWORD .env; then
+  echo -e "\nXHGUI_AUTH_PASSWORD=$(openssl rand -base64 50 | tr -cd '[:alnum:]' | fold -w30 | head -n 1)" >> .env
+fi
+
+echo "do not forget to add auth to conf.d/999-last.conf"

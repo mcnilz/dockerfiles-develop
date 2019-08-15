@@ -8,6 +8,7 @@
 /dev/certs/
 /dev/bin/mkcert
 /dev/conf.d/
+/dev/htpasswd/
 /dev/log/
 /dev/html/
 /dev/dhparam.pem

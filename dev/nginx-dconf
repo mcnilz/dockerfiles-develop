@@ -1,6 +1,8 @@
 #!/bin/bash
 
 CONF_DIR="./conf.d"
+HTPASSWD_DIR="./htpasswd"
+HTPASSWD_DIR_NGINX="/etc/nginx/htpasswd"
 if [ -z "$SIGNAL_CONTAINER" ]; then
 	NGINX_CONTAINER=dev_nginx_1
 else
@@ -9,6 +11,10 @@ fi
 
 if [ -z "$CONF_DIR" ] || [ ! -d "$CONF_DIR" ]; then
 	echo "missing conf dir"
+	exit -1
+fi
+if [ -z "$HTPASSWD_DIR" ] || [ ! -d "$HTPASSWD_DIR" ]; then
+	echo "missing httpasswd dir"
 	exit -1
 fi
 
@@ -43,6 +49,8 @@ function config {
 	fi
 	RULE=$(label traefik.frontend.rule $1)
 	CERT_ACME_SH=$(label dconf.cert.acme.sh $1)
+	USERNAME=$(label dconf.auth.username $1)
+	PASSWORD=$(label dconf.auth.password $1)
 
 	echo
 	echo $NAME $ENABLE $IP:$PORT $RULE $NETWORK
@@ -87,6 +95,12 @@ function config {
 
 	FIRST_SERVER=$(echo $SERVER | cut -d' ' -f1)
 
+	AUTH=
+	if [ -n "$PASSWORD" ]; then
+		printf "$USERNAME:$(openssl passwd -apr1 $PASSWORD)\n" > "$HTPASSWD_DIR/$FIRST_SERVER"
+		AUTH="auth_basic \"Restricted\"; auth_basic_user_file \"$HTPASSWD_DIR_NGINX/$FIRST_SERVER\"; "
+	fi
+
 	SSL="ssl_certificate /etc/nginx/certs/hosts.pem; ssl_certificate_key /etc/nginx/certs/hosts-key.pem; "
 	if [ -n "$DCONF_ACME_SH_DIR" ] && [ -n "$CERT_ACME_SH" ]; then
 		if [ -e "$DCONF_ACME_SH_DIR/$CERT_ACME_SH/fullchain.cer" ] && [ -e "$DCONF_ACME_SH_DIR/$CERT_ACME_SH/$CERT_ACME_SH.key" ]; then
@@ -100,7 +114,14 @@ function config {
 server {
 	listen 80;
 	server_name $SERVER;
+
+	location /.well-known/acme-challenge/ {
+		root /html;
+		break;
+	}
+
 	location / {
+		$AUTH
 		access_log /var/log/nginx/access.log vcombined;
 		#include include/headers-public-vhost.conf;
 		#modsecurity on;
@@ -132,6 +153,7 @@ server {
 	access_log /var/log/nginx/access.log vcombined;
 	$SSL
 	location / {
+		$AUTH
 		#include include/headers-public-vhost.conf;
 		#modsecurity on;
 		#modsecurity_rules '

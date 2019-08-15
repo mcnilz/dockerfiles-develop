@@ -57,3 +57,19 @@ services:
       options:
         max-file: '3'
         max-size: 512k
+
+  mail:
+    labels:
+      - dconf.auth.username=${MAIL_AUTH_USERNAME:?}
+      - dconf.auth.password=${MAIL_AUTH_PASSWORD:?}
+
+
+  phpmyadmin:
+    labels:
+      - dconf.auth.username=${PHPMYADMIN_AUTH_USERNAME:?}
+      - dconf.auth.password=${PHPMYADMIN_AUTH_PASSWORD:?}
+
+  xhgui:
+    labels:
+      - dconf.auth.username=${XHGUI_AUTH_USERNAME:?}
+      - dconf.auth.password=${XHGUI_AUTH_PASSWORD:?}
