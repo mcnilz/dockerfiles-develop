@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-if [ "$(id -u)" = "0" ]; then
+if [ "$(id -u)" = "0" ] && [ "$1" != "force" ]; then
   echo "do not run as root!"
   exit 1
 fi
@@ -64,7 +64,7 @@ if [ ! -e ".env" ]; then
     echo MYSQL_ROOT_PASSWORD=$(openssl rand -base64 50 | tr -cd '[:alnum:]' | fold -w30 | head -n 1) >> .env
 fi
 
-./hosts_certs
+./hosts_certs $1
 
 chmod +r ./certs/hosts-key.pem
 

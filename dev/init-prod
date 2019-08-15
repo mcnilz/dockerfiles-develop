@@ -13,6 +13,10 @@ fi
 
 sudo install -o 101 -g 101 -d ./acme.sh
 
+if ! grep -q NGINX_BIND .env; then
+  echo -e "\NGINX_BIND=0.0.0.0" >> .env
+fi
+
 if ! grep -q SIGNAL_CONTAINER .env; then
   echo -e "\nSIGNAL_CONTAINER=$(basename $PWD)_nginx_1" >> .env
 fi
