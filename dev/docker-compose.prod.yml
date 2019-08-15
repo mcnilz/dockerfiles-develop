@@ -61,12 +61,14 @@ services:
   portainer:
     labels:
       - traefik.frontend.rule=Host:portainer.${BASE_DOMAIN:?}
+      - dconf.cert.acme.sh=${ACME_SH_CERT_PORTAINER}
 
   mail:
     labels:
       - traefik.frontend.rule=Host:mail.${BASE_DOMAIN:?}
       - dconf.auth.username=${MAIL_AUTH_USERNAME:?}
       - dconf.auth.password=${MAIL_AUTH_PASSWORD:?}
+      - dconf.cert.acme.sh=${ACME_SH_CERT_MAIL}
 
 
   phpmyadmin:
@@ -74,9 +76,11 @@ services:
       - traefik.frontend.rule=Host:phpmyadmin.${BASE_DOMAIN:?}
       - dconf.auth.username=${PHPMYADMIN_AUTH_USERNAME:?}
       - dconf.auth.password=${PHPMYADMIN_AUTH_PASSWORD:?}
+      - dconf.cert.acme.sh=${ACME_SH_CERT_PHPMYADMIN}
 
   xhgui:
     labels:
       - traefik.frontend.rule=Host:xhgui.${BASE_DOMAIN:?}
       - dconf.auth.username=${XHGUI_AUTH_USERNAME:?}
       - dconf.auth.password=${XHGUI_AUTH_PASSWORD:?}
+      - dconf.cert.acme.sh=${ACME_SH_CERT_XHGUI}
