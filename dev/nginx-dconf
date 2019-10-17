@@ -18,39 +18,69 @@ if [ -z "$HTPASSWD_DIR" ] || [ ! -d "$HTPASSWD_DIR" ]; then
 	exit -1
 fi
 
+function inspect_container {
+	docker inspect -f "traefik.docker.network={{ index .Config.Labels \"traefik.docker.network\" }}
+traefik.enable={{ index .Config.Labels \"traefik.enable\" }}
+traefik.port={{ index .Config.Labels \"traefik.port\" }}
+traefik.frontend.rule={{ index .Config.Labels \"traefik.frontend.rule\" }}
+dconf.cert.acme.sh={{ index .Config.Labels \"dconf.cert.acme.sh\" }}
+dconf.auth.username={{ index .Config.Labels \"dconf.auth.username\" }}
+dconf.auth.password={{ index .Config.Labels \"dconf.auth.password\" }}
+com.docker.compose.project={{ index .Config.Labels \"com.docker.compose.project\" }}
+com.docker.compose.service={{ index .Config.Labels \"com.docker.compose.service\" }}
+NAME={{ .Name }}
+NETWORKS={{range \$i, \$e := .NetworkSettings.Networks}}{{ \$i }} {{end}}
+IPS={{range \$i, \$e := .NetworkSettings.Networks}}:{{ \$i }}:{{ \$e.IPAddress }};{{end}}" $1
+}
+
+function label {
+	for LABEL in $LABELS; do
+		if [[ "$LABEL" =~ ^$1=(.*) ]]; then
+			echo "${BASH_REMATCH[1]}"
+		fi
+	done;
+}
+
 function ip {
-	if [ -z "$2" ]; then
-		NET="^$(docker inspect --format='{{range $i, $e := .NetworkSettings.Networks}}({{ $i }}:)|{{end}}' $NGINX_CONTAINER)"
-		NET=${NET%?}
+	local IPS=$(label IPS)
+	local NETWORKS
+	local NETWORK
+	if [ -z "$1" ]; then
+		NETWORKS="$(label NETWORKS)"
+		for NETWORK in $NETWORKS; do
+			if [[ "$IPS" =~ :$NETWORK:([0-9.]+)\; ]]; then
+				echo "${BASH_REMATCH[1]}"
+				return
+			fi
+		done
 	else
-		NET="^($2:)"
+		if [[ "$IPS" =~ :$1:([0-9.]+)\; ]]; then
+			echo "${BASH_REMATCH[1]}"
+			return
+		fi
 	fi
-	docker inspect --format='{{range $i, $e := .NetworkSettings.Networks}}{{ $i }}:{{ $e.IPAddress }}{{"\n"}}{{end}}' $1 | grep -E "$NET" | cut -d: -f2 | head -n 1
 }
 
 function name {
 	local N;
-	N=$(docker inspect -f '{{ .Name }}' $1)
+	N=$(label NAME)
 	echo ${N:1}
 }
 
-function label {
-	docker inspect -f "{{ index .Config.Labels \"$1\" }}" $2
-}
-
 function config {
-	NAME=$(name $1)
-	NETWORK=$(label traefik.docker.network $1)
-	IP=$(ip $1 $NETWORK)
-	ENABLE=$(label traefik.enable $1)
-	PORT=$(label traefik.port $1)
+	LABELS=$(inspect_container $1)
+	NAME=$(name)
+	NETWORK=$(label traefik.docker.network)
+	IP=$(ip $NETWORK)
+	ENABLE=$(label traefik.enable)
+	PORT=$(label traefik.port)
 	if [ -z "$PORT" ]; then
 		PORT=80
 	fi
-	RULE=$(label traefik.frontend.rule $1)
-	CERT_ACME_SH=$(label dconf.cert.acme.sh $1)
-	USERNAME=$(label dconf.auth.username $1)
-	PASSWORD=$(label dconf.auth.password $1)
+	RULE=$(label traefik.frontend.rule)
+	CERT_ACME_SH=$(label dconf.cert.acme.sh)
+	USERNAME=$(label dconf.auth.username)
+	PASSWORD=$(label dconf.auth.password)
 
 	echo
 	echo $NAME $ENABLE $IP:$PORT $RULE $NETWORK
@@ -74,15 +104,15 @@ function config {
 	fi
 
 	if [ -z "$SERVER" ]; then
-		PROJECT=$(label com.docker.compose.project $1)
-		SERVICE=$(label com.docker.compose.service $1)
+		PROJECT=$(label com.docker.compose.project)
+		SERVICE=$(label com.docker.compose.service)
 		if [ -z "$SERVICE" ]; then
 			SERVER="$NAME.docker.localhost"
 		else
 			SERVER="$SERVICE.$PROJECT.docker.localhost"
 		fi
 	else
-        echo "127.0.0.1 $SERVER" >> /hosts.export/hosts
+		echo "127.0.0.1 $SERVER" >> /hosts.export/hosts
 	fi
 
 	echo "http://$SERVER"
@@ -186,22 +216,22 @@ EOF
 function debounce {
   if [[ ! -f /tmp/dconf_debounce_executing ]]
   then
-    touch /tmp/dconf_debounce_executing
-    "$@"
-    retVal=$?
-    {
-      sleep 3
-      if [[ -f /tmp/dconf_debounce_on-finish ]]
-      then
-        "$@"
-        rm -f /tmp/dconf_debounce_on-finish
-      fi
-      rm -f /tmp/dconf_debounce_executing
-    } &
-    return $retVal
+	touch /tmp/dconf_debounce_executing
+	"$@"
+	retVal=$?
+	{
+	  sleep 3
+	  if [[ -f /tmp/dconf_debounce_on-finish ]]
+	  then
+		"$@"
+		rm -f /tmp/dconf_debounce_on-finish
+	  fi
+	  rm -f /tmp/dconf_debounce_executing
+	} &
+	return $retVal
   elif [[ ! -f /tmp/dconf_debounce_on-finish ]]
   then
-    touch /tmp/dconf_debounce_on-finish
+	touch /tmp/dconf_debounce_on-finish
   fi
 }
 
