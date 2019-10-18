@@ -34,6 +34,7 @@ IPS={{range \$i, \$e := .NetworkSettings.Networks}}:{{ \$i }}:{{ \$e.IPAddress }
 }
 
 function label {
+	local IFS=$'\n'
 	for LABEL in $LABELS; do
 		if [[ "$LABEL" =~ ^$1=(.*) ]]; then
 			echo "${BASH_REMATCH[1]}"
@@ -82,8 +83,7 @@ function config {
 	USERNAME=$(label dconf.auth.username)
 	PASSWORD=$(label dconf.auth.password)
 
-	echo
-	echo $NAME $ENABLE $IP:$PORT $RULE $NETWORK
+	echo -e "\ncontainer: $NAME\nIP/port: $IP:$PORT network: $NETWORK"
 	SERVER=
 
 	if [ "$ENABLE" = "false" ]; then
@@ -115,7 +115,7 @@ function config {
 		echo "127.0.0.1 $SERVER" >> /hosts.export/hosts
 	fi
 
-	echo "http://$SERVER"
+	echo "domains: $SERVER"
 
 	echo "<li><strong>$NAME</strong><br />" >> /html/index.html
 	for X in $SERVER; do
