@@ -20,7 +20,13 @@ sudo apt install libnss3-tools # mkcert dependency
 cd dev
 ./init
 nano .env # change mysql root password if you want
-../bin/docker-compose up -d
+../bin/docker-compose up -d # start all services
+```
+
+### If you only require the proxy component run
+
+```bash
+docker-compose up -d nginx nginx-dconf
 ```
 
 Open http://localhost/ . You will see all detected services available through the load balancer.
