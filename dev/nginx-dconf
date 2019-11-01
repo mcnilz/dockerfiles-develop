@@ -131,7 +131,7 @@ function config {
 		AUTH="auth_basic \"Restricted\"; auth_basic_user_file \"$HTPASSWD_DIR_NGINX/$FIRST_SERVER\"; "
 	fi
 
-	SSL="ssl_certificate /etc/nginx/certs/hosts.pem; ssl_certificate_key /etc/nginx/certs/hosts-key.pem; "
+	SSL="ssl_certificate /etc/nginx/certs/hosts.pem; ssl_certificate_key /etc/nginx/certs/hosts-key.pem; ssl_stapling off;"
 	if [ -n "$DCONF_ACME_SH_DIR" ] && [ -n "$CERT_ACME_SH" ]; then
 		if [ -e "$DCONF_ACME_SH_DIR/$CERT_ACME_SH/fullchain.cer" ] && [ -e "$DCONF_ACME_SH_DIR/$CERT_ACME_SH/$CERT_ACME_SH.key" ]; then
 			SSL="ssl_certificate '$DCONF_ACME_SH_DIR/$CERT_ACME_SH/fullchain.cer'; ssl_certificate_key '$DCONF_ACME_SH_DIR/$CERT_ACME_SH/$CERT_ACME_SH.key'; "
@@ -140,25 +140,7 @@ function config {
 		fi
 	fi
 
-	cat << EOF > "$CONF_DIR/100-$FIRST_SERVER.nginx-dconf.conf"
-server {
-	listen 80;
-	server_name $SERVER;
-
-	location /.well-known/acme-challenge/ {
-		root /html;
-		break;
-	}
-
-	location / {
-		$AUTH
-		access_log /var/log/nginx/access.log vcombined;
-		#include include/headers-public-vhost.conf;
-		#modsecurity on;
-		#modsecurity_rules '
-		#	SecRuleEngine On
-		#	SecRuleRemoveById 911100 949110 941100 941130 941160 941170
-		#';
+	PROXY="
 		proxy_http_version 1.1;
 		proxy_buffering off;
 		proxy_set_header Host \$http_host;
@@ -169,12 +151,33 @@ server {
 		proxy_set_header X-Forwarded-Proto \$proxy_x_forwarded_proto;
 		proxy_set_header X-Forwarded-Ssl \$proxy_x_forwarded_ssl;
 		proxy_set_header X-Forwarded-Port \$proxy_x_forwarded_port;
-		proxy_set_header Proxy "";
+		proxy_set_header Proxy \"\";
 		proxy_connect_timeout 60s;
 		proxy_send_timeout 300s;
 		proxy_read_timeout 300s;
-		proxy_set_header Accept-Encoding "";
+		proxy_set_header Accept-Encoding \"\";
+
+		proxy_buffer_size          128k;
+		proxy_buffers              4 256k;
+		proxy_busy_buffers_size    256k;
+
 		proxy_pass http://$IP:$PORT;
+	"
+
+	cat << EOF > "$CONF_DIR/100-$FIRST_SERVER.nginx-dconf.conf"
+server {
+	listen 80;
+	server_name $SERVER;
+	access_log /var/log/nginx/access.log vcombined;
+
+	location /.well-known/acme-challenge/ {
+		root /html;
+		break;
+	}
+
+	location / {
+		$AUTH
+		$PROXY
 	}
 }
 server {
@@ -184,28 +187,7 @@ server {
 	$SSL
 	location / {
 		$AUTH
-		#include include/headers-public-vhost.conf;
-		#modsecurity on;
-		#modsecurity_rules '
-		#	SecRuleEngine On
-		#	SecRuleRemoveById 911100 949110 941100 941130 941160 941170
-		#';
-		proxy_http_version 1.1;
-		proxy_buffering off;
-		proxy_set_header Host \$http_host;
-		proxy_set_header Upgrade \$http_upgrade;
-		proxy_set_header Connection \$proxy_connection;
-		proxy_set_header X-Real-IP \$remote_addr;
-		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-		proxy_set_header X-Forwarded-Proto \$proxy_x_forwarded_proto;
-		proxy_set_header X-Forwarded-Ssl \$proxy_x_forwarded_ssl;
-		proxy_set_header X-Forwarded-Port \$proxy_x_forwarded_port;
-		proxy_set_header Proxy "";
-		proxy_connect_timeout 60s;
-		proxy_send_timeout 300s;
-		proxy_read_timeout 300s;
-		proxy_set_header Accept-Encoding "";
-		proxy_pass http://$IP:$PORT;
+		$PROXY
 	}
 }
 EOF
