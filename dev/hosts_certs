@@ -5,8 +5,9 @@ if [ "$(id -u)" = "0" ] && [ "$1" != "force" ]; then
   exit 1
 fi
 
-WORK_DIR="$(dirname $(realpath "${BASH_SOURCE[0]}"))"
-BIN="$WORK_DIR/bin"
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+BIN="./bin"
 HAVE_MKCERT=$(which mkcert >/dev/null 2>&1;echo $?)
 MKCERT_BIN="$BIN/mkcert"
 
@@ -14,19 +15,19 @@ if [ $HAVE_MKCERT -eq 1 -a ! -e "$MKCERT_BIN" ]; then
   mkdir -p "$BIN"
   case "$OSTYPE" in
     solaris*) echo "SOLARIS is not supported!"; exit 1 ;;
-    darwin*)  MKCERT_FILE=mkcert-v1.3.0-darwin-amd64 ;;
-    linux*)   MKCERT_FILE=mkcert-v1.3.0-linux-amd64 ;;
+    darwin*)  MKCERT_FILE=mkcert-v1.4.0-darwin-amd64 ;;
+    linux*)   MKCERT_FILE=mkcert-v1.4.0-linux-amd64 ;;
     bsd*)     echo "BSD is not supported!"; exit 1 ;;
     msys*)    echo "WINDOWS is not supported!"; exit 1 ;;
     *)        echo "unknown: $OSTYPE"; exit 1 ;;
   esac
-  curl -L "https://github.com/FiloSottile/mkcert/releases/download/v1.3.0/$MKCERT_FILE" -o "$MKCERT_BIN"
+  curl -L "https://github.com/FiloSottile/mkcert/releases/download/v1.4.0/$MKCERT_FILE" -o "$MKCERT_BIN"
   chmod +x "$MKCERT_BIN"
 elif [ $HAVE_MKCERT -eq 0 ]; then
   MKCERT_BIN=$(which mkcert)
 fi
 
-CERTS="$WORK_DIR/certs"
+CERTS="./certs"
 HOST_FILES="/etc/hosts"
 
 if [ -f ./hosts.export/hosts ]; then
