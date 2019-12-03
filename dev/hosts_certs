@@ -41,3 +41,7 @@ mkdir -p "$CERTS"
 "$MKCERT_BIN" -install
 
 "$MKCERT_BIN" -cert-file="$CERTS/hosts.pem" -key-file="$CERTS/hosts-key.pem" $NAMES "localhost" "docker.localhost" "*.docker.localhost" "*.dev.docker.localhost"
+
+echo "#############################################"
+echo "# CALL ./nginx-reload-conf TO USE NEW CERT! #"
+echo "#############################################"

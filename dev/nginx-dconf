@@ -82,19 +82,21 @@ function config {
 	CERT_ACME_SH=$(label dconf.cert.acme.sh)
 	USERNAME=$(label dconf.auth.username)
 	PASSWORD=$(label dconf.auth.password)
+	PROJECT=$(label com.docker.compose.project)
+	SERVICE=$(label com.docker.compose.service)
 
 	echo -e "\ncontainer: $NAME\nIP/port: $IP:$PORT network: $NETWORK"
 	SERVER=
 
 	if [ "$ENABLE" = "false" ]; then
 		echo "skip"
-		echo "<li><strong>$NAME not enabled</strong></li>" >> /html/index.html
+		echo "<tr><td>$PROJECT</td><td>$SERVICE</td><td>$NAME</td><td colspan=2>$NAME not enabled</td></tr>" >> /html/index.html
 		return
 	fi
 
 	if [ -z "$IP" ]; then
 		echo "no ip"
-		echo "<li><strong>$NAME missing IP, not connected to proxy network</strong></li>" >> /html/index.html
+		echo "<tr><td>$PROJECT</td><td>$SERVICE</td><td>$NAME</td><td colspan=2>$NAME missing IP, not connected to proxy network</td></tr>" >> /html/index.html
 		return
 	fi
 
@@ -104,8 +106,6 @@ function config {
 	fi
 
 	if [ -z "$SERVER" ]; then
-		PROJECT=$(label com.docker.compose.project)
-		SERVICE=$(label com.docker.compose.service)
 		if [ -z "$SERVICE" ]; then
 			SERVER="$NAME.docker.localhost"
 		else
@@ -117,11 +117,15 @@ function config {
 
 	echo "domains: $SERVER"
 
-	echo "<li><strong>$NAME</strong><br />" >> /html/index.html
+	echo "<tr><td>$PROJECT</td><td>$SERVICE</td><td>$NAME</td><td>" >> /html/index.html
 	for X in $SERVER; do
-		echo "<a href=\"http://$X\">http://$X</a> <a href=\"https://$X\">https://$X</a><br />"  >> /html/index.html
-	done;
-	echo '</li>' >> /html/index.html
+		echo "<a href=\"http://$X\">http://$X</a><br />" >> /html/index.html
+	done
+	echo "</td><td>" >> /html/index.html
+	for X in $SERVER; do
+		echo "<a href=\"https://$X\">https://$X</a><br />" >> /html/index.html
+	done
+	echo "</td></tr>" >> /html/index.html
 
 	FIRST_SERVER=$(echo $SERVER | cut -d' ' -f1)
 
@@ -230,7 +234,9 @@ function listen {
 }
 
 function start {
-	echo '<html><head><title>dev proxy</title></head><body><h1>Vhost not found</h1><ul>' > /html/index.html
+	echo '<html><head><title>dev proxy</title></head><body><h1>nginx dconf</h1><table border=1>' > /html/index.html
+	date >> /html/index.html
+	echo '<tr><th>project</th><th>service</th><th>container</th><th>HTTP</th><th>HTTPS</th></tr>' >> /html/index.html
 	rm -rf "$CONF_DIR"/100-*.nginx-dconf.conf /hosts.export/*
 
 	for ID in $(docker ps --filter "label=traefik.port" -q); do
@@ -239,7 +245,7 @@ function start {
 
 	docker kill -s HUP $NGINX_CONTAINER
 
-	echo '</ul></body></html>' >> /html/index.html
+	echo '</table>.</body></html>' >> /html/index.html
 }
 
 start

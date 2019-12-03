@@ -42,4 +42,11 @@ if ! grep -q XHGUI_AUTH_PASSWORD .env; then
   echo -e "\nXHGUI_AUTH_PASSWORD=$(openssl rand -base64 50 | tr -cd '[:alnum:]' | fold -w30 | head -n 1)" >> .env
 fi
 
+if ! grep -q SCALE_CRON_ACME .env; then
+  echo -e "\nSCALE_CRON_ACME=1" >> .env
+fi
+if ! grep -q PSCALE_CRON_ROTATE_LOG .env; then
+  echo -e "\nPSCALE_CRON_ROTATE_LOG=1" >> .env
+fi
+
 echo "do not forget to add auth to conf.d/999-last.conf"

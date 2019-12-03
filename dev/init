@@ -64,6 +64,34 @@ if [ ! -e ".env" ]; then
     echo MYSQL_ROOT_PASSWORD=$(openssl rand -base64 50 | tr -cd '[:alnum:]' | fold -w30 | head -n 1) >> .env
 fi
 
+if ! grep -q SCALE_MYSQL= .env; then
+  echo -e "\nSCALE_MYSQL=1" >> .env
+fi
+if ! grep -q SCALE_MYSQL80 .env; then
+  echo -e "\nSCALE_MYSQL80=1" >> .env
+fi
+if ! grep -q SCALE_NGINX= .env; then
+  echo -e "\nSCALE_NGINX=1" >> .env
+fi
+if ! grep -q SCALE_NGINX_DCONF .env; then
+  echo -e "\nSCALE_NGINX_DCONF=1" >> .env
+fi
+if ! grep -q SCALE_MAIL= .env; then
+  echo -e "\nSCALE_MAIL=1" >> .env
+fi
+if ! grep -q SCALE_PORTAINER .env; then
+  echo -e "\nSCALE_PORTAINER=1" >> .env
+fi
+if ! grep -q SCALE_PHPMYADMIN .env; then
+  echo -e "\nSCALE_PHPMYADMIN=1" >> .env
+fi
+if ! grep -q SCALE_MONGO_XH .env; then
+  echo -e "\nSCALE_MONGO_XH=1" >> .env
+fi
+if ! grep -q SCALE_XHGUI .env; then
+  echo -e "\nSCALE_XHGUI=1" >> .env
+fi
+
 ./hosts_certs $1
 
 chmod +r ./certs/hosts-key.pem

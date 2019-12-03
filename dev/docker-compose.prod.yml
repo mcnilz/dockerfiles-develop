@@ -37,6 +37,8 @@ services:
       options:
         max-file: '3'
         max-size: 512k
+    logging: {driver: json-file, options: {max-file: '3', max-size: 512k}}
+    scale: ${SCALE_CRON_ACME:-1}
 
   cron-rotate-log:
     image: webvariants/nginx-acme-and-more
@@ -57,6 +59,8 @@ services:
       options:
         max-file: '3'
         max-size: 512k
+    logging: {driver: json-file, options: {max-file: '3', max-size: 512k}}
+    scale: ${SCALE_CRON_ROTATE_LOG:-1}
 
   portainer:
     labels:

@@ -30,6 +30,8 @@ services:
     mem_limit: 1G
     memswap_limit: 1100M
     ports: ["127.0.0.1:3306:3306"]
+    logging: {driver: json-file, options: {max-file: '30', max-size: 1024k}}
+    scale: ${SCALE_MYSQL:-1}
 
   mysql80:
     image: mysql:8.0
@@ -54,6 +56,8 @@ services:
     mem_limit: 1G
     memswap_limit: 1100M
     ports: ["127.0.0.1:3308:3306"]
+    logging: {driver: json-file, options: {max-file: '30', max-size: 1024k}}
+    scale: ${SCALE_MYSQL80:-1}
 
   # traefik:
   #   image: traefik
@@ -89,6 +93,8 @@ services:
       - NET_BIND_SERVICE
     mem_limit: 512M
     memswap_limit: 513M
+    logging: {driver: json-file, options: {max-file: '100', max-size: 1024k}}
+    scale: ${SCALE_NGINX:-1}
 
   nginx-dconf:
     build:
@@ -108,6 +114,8 @@ services:
     restart: unless-stopped
     mem_limit: 200M
     memswap_limit: 250M
+    logging: {driver: json-file, options: {max-file: '3', max-size: 512k}}
+    scale: ${SCALE_NGINX_DCONF:-1}
 
   mail:
     image: djfarrelly/maildev
@@ -119,6 +127,8 @@ services:
       proxy:
         aliases:
           - maildev
+    logging: {driver: json-file, options: {max-file: '3', max-size: 512k}}
+    scale: ${SCALE_MAIL:-1}
 
   portainer:
     image: portainer/portainer
@@ -130,6 +140,8 @@ services:
     mem_limit: 100M
     memswap_limit: 200M
     networks: ["proxy"]
+    logging: {driver: json-file, options: {max-file: '3', max-size: 512k}}
+    scale: ${SCALE_PORTAINER:-1}
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -144,6 +156,8 @@ services:
       - ./data/phpmyadmin/sessions:/sessions
     labels: ["traefik.port=80", "traefik.enable=true", "traefik.docker.network=proxy"]
     networks: ["mysql", "proxy"]
+    logging: {driver: json-file, options: {max-file: '3', max-size: 512k}}
+    scale: ${SCALE_PHPMYADMIN:-1}
 
   mongo-xh:
     image: percona/percona-server-mongodb:3.6
@@ -157,6 +171,8 @@ services:
     tmpfs:
       - /data/db:mode=700,size=100k,uid=1001,gid=0
     networks: ["proxy"]
+    logging: {driver: json-file, options: {max-file: '3', max-size: 512k}}
+    scale: ${SCALE_MONGO_XH:-1}
 
   xhgui:
     image: webvariants/php:7.3
@@ -189,8 +205,5 @@ services:
       START_SCRIPT_DIR: /start
       XHGUI_INDEX_CAP: 104857600 # 100 MB
     labels: ["traefik.port=80", "traefik.enable=true", "traefik.docker.network=proxy"]
-    logging:
-      driver: json-file
-      options:
-        max-file: '3'
-        max-size: 512k
+    logging: {driver: json-file, options: {max-file: '3', max-size: 512k}}
+    scale: ${SCALE_XHGUI:-1}
