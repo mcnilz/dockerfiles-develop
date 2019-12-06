@@ -109,6 +109,8 @@ services:
       - ./hosts.export/:/hosts.export/
     tmpfs:
       - /tmp
+    environment:
+      - HTTPS_REDIRECT_ALL=${HTTPS_REDIRECT_ALL:-}
     working_dir: /etc/nginx/
     user: 101:${DOCKER_GID:?please run ./init first}
     restart: unless-stopped

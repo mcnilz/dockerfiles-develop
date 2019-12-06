@@ -168,6 +168,13 @@ function config {
 		proxy_pass http://$IP:$PORT;
 	"
 
+	AUTHHTTP="$AUTH"
+	PROXYHTTP="$PROXY"
+	if [ -n "$HTTPS_REDIRECT_ALL" ]; then
+		AUTHHTTP="$AUTH"
+		PROXYHTTP="return 301 https://\$host\$request_uri;"
+	fi
+
 	cat << EOF > "$CONF_DIR/100-$FIRST_SERVER.nginx-dconf.conf"
 server {
 	listen 80;
@@ -180,8 +187,8 @@ server {
 	}
 
 	location / {
-		$AUTH
-		$PROXY
+		$AUTHHTTP
+		$PROXYHTTP
 	}
 }
 server {
