@@ -171,7 +171,7 @@ function config {
 	AUTHHTTP="$AUTH"
 	PROXYHTTP="$PROXY"
 	if [ -n "$HTTPS_REDIRECT_ALL" ]; then
-		AUTHHTTP="$AUTH"
+		AUTHHTTP=""
 		PROXYHTTP="return 301 https://\$host\$request_uri;"
 	fi
 
