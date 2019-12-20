@@ -2,10 +2,12 @@
 
 export $(cat "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.env" | grep -v ^# | xargs)
 
-docker run \
+if [ -t 0 ] && [ -t 1 ] ; then T=-t; else T=; fi # detect terminal
+
+exec docker run $T -i \
 	--rm \
 	--read-only \
-	-ti \
 	--network mysql \
+	-e "MYSQL_PWD=$MYSQL_ROOT_PASSWORD" \
 	mysql:5.7 \
-	mysql -h mysql -u root -p$MYSQL_ROOT_PASSWORD $@
+	mysql -h mysql -u root $@

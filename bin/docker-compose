@@ -11,4 +11,21 @@ if [ ! -f "$DOCKER_COMPOSE_DIR/$DOCKER_COMPOSE_NAME" ]; then
     chmod +x "$DOCKER_COMPOSE_DIR/$DOCKER_COMPOSE_NAME"
 fi
 
+HAS_FILE_PARAM=
+for param in "$@"
+do
+    if [[ ! $param =~ ^- ]]; then break; fi
+    if [ $param == "-f" ] || [ $param == "--file" ]; then
+        HAS_FILE_PARAM=1
+    fi
+done
+
+if [ -z "$HAS_FILE_PARAM" ]; then
+    while [ ! -e docker-compose.yml ] && [ ! -e docker-compose.yaml ] && [ $(pwd) != '/' ]
+    do
+        cd ..
+        echo "try to find docker-compose.yml in parent directory $(pwd)"
+    done
+fi
+
 exec "$DOCKER_COMPOSE_DIR/$DOCKER_COMPOSE_NAME" "$@"

@@ -1,8 +1,7 @@
 #!/bin/bash
 
 if [[ "$(docker images -q mycli 2> /dev/null)" == "" ]]; then
-	echo "FROM debian:9-slim
-RUN apt-get update  && apt-get -y install python-pip
+	echo "FROM python:slim
 RUN pip install -U mycli
 RUN useradd -ms /bin/bash john
 USER john
@@ -19,5 +18,6 @@ docker run \
 	-e LC_ALL=C.UTF-8 \
 	-e LANG=C.UTF-8 \
 	--network mysql \
+	-e "MYSQL_PWD=$MYSQL_ROOT_PASSWORD" \
 	mycli \
-	-h mysql -u root -p$MYSQL_ROOT_PASSWORD $@
+	-h mysql -u root $@

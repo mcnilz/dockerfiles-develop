@@ -12,5 +12,6 @@ docker run \
 	--read-only \
 	-v $(realpath $1):/dump.sql:ro \
 	--network mysql \
+	-e "MYSQL_PWD=$MYSQL_ROOT_PASSWORD" \
 	mysql:5.7 \
-	/bin/bash -c "cat /dump.sql | mysql -f -h mysql -u root -p$MYSQL_ROOT_PASSWORD ${2}"
+	/bin/bash -c "cat /dump.sql | mysql -f -h mysql -u root ${2}"
