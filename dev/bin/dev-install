@@ -1,0 +1,145 @@
+#!/bin/bash -e
+
+if [ "$(id -u)" != "0" ]; then
+    echo "run script as root!"
+    exit 1
+fi
+
+if [ -z "$1" ]; then
+    echo "missing user id parameter"
+    echo 'call with sudo ./dev-install.bash $(id -u)'
+    exit 1
+fi
+
+USERID=$1
+
+if [ "$USERID" = "0" ]; then
+    echo "user id must not be 0 (root)!"
+    exit 1
+fi
+
+function asuser { X="$@"; sudo -i -u "#$USERID" $X ; }
+function asuserd { X="${@:2}"; sudo -i -u "#$USERID" bash -c "cd $1; $X " ; }
+USERHOME=$(asuser pwd)
+if [ "$USERHOME" = "/root" ]; then
+    echo "USERHOME can not be /root" >&2
+    exit 1
+fi
+# USERNAME=$(sudo -i -u "#$USERID" id -un)
+
+if [ ! -e "/usr/sbin/haveged" ]; then
+    apt-get update
+    apt-get -y upgrade
+    apt-get install -y \
+        git \
+        git-lfs \
+        mc \
+        zsh \
+        haveged
+fi
+
+# https://docs.docker.com/install/linux/docker-ce/ubuntu/
+if [ ! -e "/usr/bin/dockerd" ]; then
+    echo "INSTALLING DOCKER"
+    apt-get update
+    apt-get install -y \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        gnupg-agent \
+        software-properties-common
+
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    FINGERPRINT=$(apt-key fingerprint 0EBFCD88 | grep 9DC8 | tr -d '[:space:]')
+    if [ "$FINGERPRINT" != "9DC858229FC7DD38854AE2D88D81803C0EBFCD88" ]; then
+        echo "FINGERPRINT ERROR" 1>&2
+        apt-key fingerprint 0EBFCD88
+        exit 1
+    fi
+
+    add-apt-repository \
+        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+        $(lsb_release -cs) \
+        stable"
+
+    apt-get update
+    apt-get -y install docker-ce
+    usermod -aG docker "$(asuser id -un)"
+fi
+
+if [ ! -e "/usr/bin/code" ]; then
+    echo "INSTALLING VS CODE"
+    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+    FINGERPRINT=$(apt-key fingerprint EB3E94ADBE1229CF | grep BC52 | tr -d '[:space:]')
+    if [ "$FINGERPRINT" != "BC528686B50D79E339D3721CEB3E94ADBE1229CF" ]; then
+        echo "FINGERPRINT ERROR" 1>&2
+        apt-key fingerprint EB3E94ADBE1229CF
+        exit 1
+    fi
+
+    add-apt-repository \
+        "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+
+    apt-get update
+    apt-get -y install code
+fi
+
+if [ ! -e "/usr/bin/google-chrome" ]; then
+    echo "INSTALLING GOOGLE CHROME"
+    curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
+    FINGERPRINT=$(apt-key fingerprint 7FAC5991 | grep 4CCA | tr -d '[:space:]')
+    if [ "$FINGERPRINT" != "4CCA1EAF950CEE4AB83976DCA040830F7FAC5991" ]; then
+        echo "FINGERPRINT ERROR" 1>&2
+        apt-key fingerprint 7FAC5991
+        exit 1
+    fi
+    FINGERPRINT=$(apt-key fingerprint D38B4796 | grep EB4C | tr -d '[:space:]')
+    if [ "$FINGERPRINT" != "EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796" ]; then
+        echo "FINGERPRINT ERROR" 1>&2
+        apt-key fingerprint D38B4796
+        exit 1
+    fi
+
+    add-apt-repository \
+        "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
+
+    apt-get update
+    apt-get -y install google-chrome-stable
+fi
+
+if [ ! -d "$USERHOME/projects" ]; then asuser mkdir -p "$USERHOME/projects"; fi
+if [ ! -d "$USERHOME/bin" ]; then asuser mkdir -p "$USERHOME/bin"; fi
+if [ ! -d "$USERHOME/projects/dockerfiles-develop" ]; then
+    echo "INSTALLING dockerfiles-develop"
+    apt-get install -y libnss3-tools
+    asuser git clone https://github.com/mcnilz/dockerfiles-develop.git "$USERHOME/projects/dockerfiles-develop"
+fi
+if [ ! -f "$USERHOME/bin/docker-compose" ]; then
+    echo "INSTALLING docker-compose"
+    asuserd "$USERHOME/bin" ln -s "$USERHOME/projects/dockerfiles-develop/bin/docker-compose" .
+fi
+if [ -z "$(grep fs.inotify.max_user_watches /etc/sysctl.conf)" ]; then
+    echo 'fs.inotify.max_user_watches=524288' | tee -a /etc/sysctl.conf
+    sysctl -p
+fi
+if [ ! -f "$USERHOME/projects/dockerfiles-develop/dev/.env" ]; then
+    echo "INSTALLING dockerfiles-develop ./init"
+    asuserd "$USERHOME/projects/dockerfiles-develop/dev" ./init
+
+    asuserd "$USERHOME/projects/dockerfiles-develop/dev" sed -i .env \
+        -e 's/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD=root/' \
+        -e 's/SCALE_MYSQL=.*/SCALE_MYSQL=0/' \
+        -e 's/SCALE_MYSQL80=.*/SCALE_MYSQL80=0/' \
+        -e 's/SCALE_MAIL=.*/SCALE_MAIL=0/' \
+        -e 's/SCALE_PORTAINER=.*/SCALE_PORTAINER=0/' \
+        -e 's/SCALE_PHPMYADMIN=.*/SCALE_PHPMYADMIN=0/' \
+        -e 's/SCALE_MONGO_XH=.*/SCALE_MONGO_XH=0/' \
+        -e 's/SCALE_XHGUI=.*/SCALE_XHGUI=0/'
+fi
+if [ -f "$USERHOME/projects/dockerfiles-develop/dev/.env" ]; then
+    echo "starting dockerfiles-develop"
+    asuserd "$USERHOME/projects/dockerfiles-develop/dev" "$USERHOME/bin/docker-compose" version
+    cd "$USERHOME/projects/dockerfiles-develop/dev"
+    "$USERHOME/bin/docker-compose" up -d nginx nginx-dconf
+fi
+
