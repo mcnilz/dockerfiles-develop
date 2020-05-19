@@ -1,0 +1,20 @@
+version: '2.2'
+
+services:
+  cron:
+    image: clockworksoul/docker-gc-cron
+    restart: unless-stopped
+    environment:
+      CRON: 27 * * * *
+      FORCE_IMAGE_REMOVAL: '1'
+      MINIMUM_IMAGES_TO_SAVE: '10'
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    cpus: 1.0
+    mem_limit: 500m
+    logging:
+      driver: json-file
+      options:
+        max-file: '3'
+        max-size: 64k
+
